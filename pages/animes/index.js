@@ -63,6 +63,4 @@ export const getServerSideProps = async () => {
     };
 }
 
-
-
 export default AnimeList;

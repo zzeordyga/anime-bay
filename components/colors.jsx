@@ -1,0 +1,9 @@
+export const WHITE = '#FFFFFF';
+export const BLACK = '#000000';
+export const RICH_BLACK = '#00171F'
+export const PRUSSIAN_BLUE = '#003459';
+export const DARK_CORNFLOWER = '#003879';
+export const FRENCH_BLUE = '#0075C4';
+export const DODGER_BLUE = '#0093FC';
+export const CELADON_BLUE = '#007EA7';
+export const VIVID_CERULEAN = '#00A8E8';
