@@ -82,6 +82,7 @@ export const LinkButton = ({
   underline = false,
   fontSize = "1rem",
   width = "",
+  css,
 }) => {
   const StyledSpan = styled.span`
     color: ${textColor};
@@ -93,6 +94,8 @@ export const LinkButton = ({
     font-size: ${fontSize};
     width: ${width};
     border-radius: 0.25rem;
+
+    ${css}
 
     :hover {
       color: ${hoverColor};
@@ -108,6 +111,49 @@ export const LinkButton = ({
     <Link href={href} click={click} css={flexbox}>
       <StyledSpan>{children}</StyledSpan>
     </Link>
+  );
+};
+
+export const TextButton = ({
+  children,
+  click,
+  href,
+  padding = "6px",
+  textColor = FRENCH_BLUE,
+  hoverColor = VIVID_CERULEAN,
+  activeColor = CELADON_BLUE,
+  hoverBackground,
+  bold = "600",
+  underline = false,
+  fontSize = "1rem",
+  width = "",
+  css,
+}) => {
+  const StyledSpan = styled.span`
+    color: ${textColor};
+    text-decoration: ${underline === true ? "underline" : "none"};
+    padding: ${padding};
+    font-weight: ${bold};
+    transition: all ease-in 0.075s;
+    cursor: pointer;
+    font-size: ${fontSize};
+    width: ${width};
+    border-radius: 0.25rem;
+
+    ${css}
+
+    :hover {
+      color: ${hoverColor};
+      ${hoverBackground ? "background-color : " + hoverBackground : ""};
+    }
+
+    :active {
+      color: ${activeColor};
+    }
+  `;
+
+  return (
+    <StyledSpan onClick={click}>{children}</StyledSpan>
   );
 };
 

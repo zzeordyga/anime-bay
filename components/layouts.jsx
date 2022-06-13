@@ -48,14 +48,14 @@ const SmElement100 = styled.div`
   }
 `;
 
-const LgElement = styled.div`
+export const LgElement = styled.div`
   display: none;
   @media only screen and (min-width: ${LG}) {
     display: block;
   }
 `;
 
-const SmElement = styled.div`
+export const SmElement = styled.div`
   display: block;
   @media only screen and (min-width: ${LG}) {
     display: none;
@@ -78,6 +78,7 @@ export const Navbar = ({
   const [open, setOpen] = useState(false);
 
   const StyledNavbar = styled.nav`
+    z-index: 50;
     background-color: ${WHITE};
 
     ${darkMode ? darkCss : lightCss};
@@ -150,8 +151,6 @@ export const Navbar = ({
               css={css`
                 padding: 0.5rem 0;
 
-                position: absolute;
-
                 @media only screen and (min-width: ${LG}) {
                   margin-left: 1.5rem;
                   justify-content: end;
@@ -203,6 +202,8 @@ export const MobileNavbar = ({ links, menuOpened }) => {
               {link.text}
             </LinkButton>
           ))}
+
+          <IconInput></IconInput>
         </Flexbox>
       </div>
     </SmElement>
@@ -224,6 +225,7 @@ export const Footer = ({ darkMode = false }) => {
     color: ${RICH_BLACK};
     padding: 2rem 0;
     font-size: small;
+    color: grey;
 
     @media only screen and (min-width: ${SM}) {
       font-size: larger;
@@ -304,7 +306,7 @@ export const Pagination = ({
     >
       <SmElement100>
         <Flexbox shrink={1} grow={1} justify="space-evenly">
-          <Button css={bigButton} click={prevAction} disabled={currPage===1}>Prev</Button>
+          <Button css={bigButton} click={prevAction} disabled={currPage === 1}>Prev</Button>
           <Button css={bigButton} click={nextAction} disabled={!hasNext}>Next</Button>
         </Flexbox>
       </SmElement100>
@@ -312,7 +314,7 @@ export const Pagination = ({
       <LgElement100>
         <Flexbox justify="space-between" grow={1} shrink={1}>
           <div>
-            <p>Showing {((currPage-1) * perPage) + 1} to {total} of results</p>
+            <p>Showing {((currPage - 1) * perPage) + 1} to {total} of results</p>
           </div>
 
           <div>
@@ -323,7 +325,7 @@ export const Pagination = ({
                 border-bottom-right-radius: 0;
                 font-weight: bolder;
               `}
-              disabled={currPage===1}
+              disabled={currPage === 1}
             >
               {"<"}
             </Button>

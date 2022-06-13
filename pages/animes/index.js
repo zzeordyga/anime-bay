@@ -8,7 +8,9 @@ import GET_ANIME from '../../lib/queries/getAnime';
 import Image from 'next/image';
 import { css } from '@emotion/react';
 import { Footer, Navbar, Pagination } from '../../components/layouts';
-import { FRENCH_BLUE, VIVID_CERULEAN } from '../../components/colors';
+import { VIVID_CERULEAN } from '../../components/colors';
+import Head from 'next/head';
+import { truncate } from '../../lib/utils/word';
 
 
 export const AnimeList = () => {
@@ -29,22 +31,6 @@ export const AnimeList = () => {
     const animeList = data.Page.media;
     const paginationInfo = data.Page.pageInfo;
 
-    const truncate = (text, length) => {
-        if (text == null) {
-            return "";
-        }
-
-        if (text.length <= length) {
-            return text;
-        }
-
-        text = text.substring(0, length);
-        const last = text.lastIndexOf(" ");
-        text = text.substring(0, last);
-        return text
-        // + "...";
-    }
-
     const prevPage = () => {
         setCurrPage(page => page - 1);
     }
@@ -59,13 +45,19 @@ export const AnimeList = () => {
 
     return (
         <>
+            <Head>
+                <title>Anime Bay</title>
+            </Head>
             <Navbar />
             <PaddedContent verticalMargin='2rem'>
-                <div>
-                    <Grid gap='8'>
-                        {
-                            animeList.map(anime => (
-                                <Card key={anime.id} maxWidth={'20rem'} borderRadius={'0.5rem'} css={css`
+                <h1>Anime List</h1>
+                {
+                    !loading ?
+                        <div>
+                            <Grid gap='8'>
+                                {
+                                    animeList.map(anime => (
+                                        <Card key={anime.id} maxWidth={'20rem'} borderRadius={'0.5rem'} css={css`
                                 position: relative;
                                 transition: all 0.1s ease-in;
                                 bottom: 0;
@@ -83,19 +75,19 @@ export const AnimeList = () => {
                                     border-top-left-radius: 0.5rem;
                                 }
                             `
-                                }>
-                                    <Flexbox
-                                        direction='column'
-                                        justify='center' alignment='start'>
-                                        <Image
-                                            src={anime.coverImage.large}
-                                            alt={anime.title.romaji}
-                                            width={325}
-                                            height={275}
-                                        />
+                                        }>
+                                            <Flexbox
+                                                direction='column'
+                                                justify='center' alignment='start'>
+                                                <Image
+                                                    src={anime.coverImage.large}
+                                                    alt={anime.title.romaji}
+                                                    width={325}
+                                                    height={275}
+                                                />
 
-                                        {/* Title */}
-                                        <Flexbox css={css`
+                                                {/* Title */}
+                                                <Flexbox css={css`
                                             padding: 0.5rem;
                                             font-size: larger;
                                             text-align: left;
@@ -103,10 +95,10 @@ export const AnimeList = () => {
                                             min-height: 5rem;
                                             /* align-items: ; */
                                         `}
-                                            justify="start"
-                                            alignment="flex-start"
-                                        >
-                                            <Container css={css`
+                                                    justify="start"
+                                                    alignment="flex-start"
+                                                >
+                                                    <Container css={css`
                                                 overflow: hidden;
                                                 text-overflow: ellipsis;
                                                 
@@ -114,48 +106,62 @@ export const AnimeList = () => {
                                                     text-decoration: underline ${VIVID_CERULEAN} 2px;
                                                 }
                                             `
-                                            }>
-                                                <LinkButton key={anime.id} href={router.asPath + `/` + anime.id} padding='0px'>
-                                                    {truncate(anime.title.romaji, 30)}
-                                                </LinkButton>
-                                            </Container>
-                                        </Flexbox>
+                                                    }>
+                                                        <LinkButton key={anime.id} href={router.asPath + `/` + anime.id} padding='0px'>
+                                                            {truncate(anime.title.romaji, 30)}
+                                                        </LinkButton>
+                                                    </Container>
+                                                </Flexbox>
 
-                                        {/* Misc */}
-                                        <Flexbox
-                                            justify='space-between'
-                                            alignment='end'
-                                            css={css`
+                                                {/* Misc */}
+                                                <Flexbox
+                                                    justify='space-between'
+                                                    alignment='end'
+                                                    css={css`
                                                 width: 100%;
                                                 padding: 0.5rem;
                                                 justify-self: baseline;
+                                                margin: 0.25rem;
                                             `}
-                                        >
-                                            <Container>
-                                                Hello
-                                            </Container>
-                                            <Container>
-                                                Hello
-                                            </Container>
-                                        </Flexbox>
-                                    </Flexbox>
-                                </Card>
-                            ))
-                        }
-                    </Grid>
-                    {/* <button onClick={prevPage} disabled={currPage == 1 ? true : false}>Prev</button>
+                                                >
+                                                    <Container css={css`
+                                                        min-width: 2.25rem;
+                                                        font-weight: bold;
+                                                        border: 3px solid ${VIVID_CERULEAN};
+                                                        padding: 0.25rem 0.3rem;
+                                                        border-radius: 100%;
+                                                    `}>
+                                                        {anime.averageScore ? anime.averageScore : '0'}
+                                                    </Container>
+                                                    <Container css={css`
+                                                        font-size: small;
+                                                        padding: 0.25rem 0.3rem;
+                                                        color: grey;
+                                                    `}>
+                                                        {anime.episodes ? anime.episodes : '0'} Episodes
+                                                    </Container>
+                                                </Flexbox>
+                                            </Flexbox>
+                                        </Card>
+                                    ))
+                                }
+                            </Grid>
+                            {/* <button onClick={prevPage} disabled={currPage == 1 ? true : false}>Prev</button>
                     <button onClick={nextPage} disabled={!paginationInfo.hasNextPage}>Next</button> */}
-                    <Pagination
-                        pages={paginationInfo.lastPage}
-                        hasNext={paginationInfo.hasNextPage}
-                        currPage={currPage}
-                        goToPageAction={goToPage}
-                        nextAction={nextPage}
-                        prevAction={prevPage}
-                        perPage={10}
-                        total={paginationInfo.total}
-                    />
-                </div>
+                            <Pagination
+                                pages={paginationInfo.lastPage}
+                                hasNext={paginationInfo.hasNextPage}
+                                currPage={currPage}
+                                goToPageAction={goToPage}
+                                nextAction={nextPage}
+                                prevAction={prevPage}
+                                perPage={10}
+                                total={paginationInfo.total}
+                            />
+                        </div>
+                        :
+                        <p>Loading...</p>
+                }
             </PaddedContent>
             <Footer />
         </>
