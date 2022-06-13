@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { LG, MD, SM } from "./breakpoints";
-import { WHITE } from "./colors";
+import { LIGHT_GREY, WHITE } from "./colors";
 
 let getWidth = (span) => {
   if (!span) return;
@@ -10,25 +10,29 @@ let getWidth = (span) => {
   retun`width: ${width}%;`;
 };
 
-export const PaddedContent = ({ 
-  children, 
-  backgroundColor=WHITE,
-  verticalMargin='0',
-  maxWidth="80rem"
+export const PaddedContent = ({
+  children,
+  backgroundColor = WHITE,
+  verticalMargin = "0",
+  verticalPadding = 0,
+  maxWidth = "80rem",
+  css,
 }) => {
   const StyledDiv = styled.div`
     max-width: ${maxWidth};
     background-color: ${backgroundColor};
     margin: ${verticalMargin} auto;
-    padding: 0 0.5rem;
+    padding: ${verticalPadding} 0.5rem;
 
     @media only screen and (min-width: ${SM}) {
-      padding: 0 1.5rem;
+      padding: ${verticalPadding} 1.5rem;
     }
 
     @media only screen and (min-width: ${LG}) {
-      padding: 0 2rem;
+      padding: ${verticalPadding} 2rem;
     }
+
+    ${css}
   `;
 
   return <StyledDiv>{children}</StyledDiv>;
@@ -52,7 +56,7 @@ export const Card = ({
     padding: ${padding};
 
     min-height: ${minHeight + "rem"};
-    
+
     max-width: ${maxWidth};
 
     @media only screen and (min-width: ${SM}) {
@@ -93,8 +97,8 @@ export const Flexbox = ({
   shrink = 1,
   grow = 1,
   overflow = "hidden",
-  minHeight='4rem',
-  css
+  minHeight,
+  css,
 }) => {
   const StyledFlex = styled.div`
     display: flex;
@@ -114,72 +118,32 @@ export const Flexbox = ({
   return <StyledFlex>{children}</StyledFlex>;
 };
 
-export const Title = ({ 
-    children,
-    fontSize='24px'
-}) => {
-    
-    const StyledDiv = styled.div`
-        font-size: ${fontSize};
-    `
+export const Title = ({ children, fontSize = "24px" }) => {
+  const StyledDiv = styled.div`
+    font-size: ${fontSize};
+  `;
 
-    return (
-        <StyledDiv>
-            {children}
-        </StyledDiv>
-    );
+  return <StyledDiv>{children}</StyledDiv>;
 };
 
-export const Container = ({css, children}) => {
-
+export const Container = ({ css, children }) => {
   const StyledContainer = styled.div`
     ${css}
-  `
-
-  return (
-    <StyledContainer>
-      {children}
-    </StyledContainer>
-  )
-}
-
-
-export const grid = (col = 5, gap = "1.5rem") => {
-  const cssGrid = css`
-    display: grid;
-    gap: ${gap};
-    grid-template-columns: repeat(${Math.floor(col / 2)}, 1fr);
-
-    & > * {
-      grid-column: span 1 / span 1;
-    }
-
-    @media only screen and (min-width: ${SM}) {
-      padding: 0 1.5rem;
-      grid-template-columns: repeat(${col}, 1fr);
-    }
   `;
 
-  return cssGrid;
+  return <StyledContainer>{children}</StyledContainer>;
 };
 
-export const flexbox = (
-  direction = "row",
-  wrap = "wrap",
-  justify = "start",
-  alignment = "center",
-  shrink = 1,
-  grow = 1
-) => {
-  const cssFlex = css`
-    display: flex;
-    justify-content: ${justify};
-    align-items: ${alignment};
-    flex-wrap: ${wrap};
-    flex-direction: ${direction};
-    flex-grow: ${grow};
-    flex-shrink: ${shrink};
+export const ScrollableContainer = ({ children, height='400px' }) => {
+  const StyledDiv = styled.div`
+    height: ${height};
+    overflow: auto;
+    
+    & > * {
+      padding: 1rem 2rem;
+      border-bottom: 1px solid ${LIGHT_GREY};
+    }
   `;
 
-  return cssFlex;
+  return <StyledDiv>{children}</StyledDiv>;
 };

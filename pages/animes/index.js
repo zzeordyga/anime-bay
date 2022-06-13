@@ -88,13 +88,13 @@ export const AnimeList = () => {
 
                                                 {/* Title */}
                                                 <Flexbox css={css`
-                                            padding: 0.5rem;
-                                            font-size: larger;
-                                            text-align: left;
-                                            width: 85%;
-                                            min-height: 5rem;
-                                            /* align-items: ; */
-                                        `}
+                                                    padding: 0.5rem;
+                                                    font-size: larger;
+                                                    text-align: left;
+                                                    width: 85%;
+                                                    min-height: 5rem;
+                                                    /* align-items: ; */
+                                                `}
                                                     justify="start"
                                                     alignment="flex-start"
                                                 >
@@ -118,11 +118,11 @@ export const AnimeList = () => {
                                                     justify='space-between'
                                                     alignment='end'
                                                     css={css`
-                                                width: 100%;
-                                                padding: 0.5rem;
-                                                justify-self: baseline;
-                                                margin: 0.25rem;
-                                            `}
+                                                        width: 100%;
+                                                        padding: 0.5rem;
+                                                        justify-self: baseline;
+                                                        margin: 0.25rem;
+                                                    `}
                                                 >
                                                     <Container css={css`
                                                         min-width: 2.25rem;
