@@ -10,14 +10,17 @@ import { ERROR_RED, RICH_BLACK, VIVID_CERULEAN, WHITE } from '../../components/c
 import { Card, Container, Flexbox, Grid, PaddedContent } from '../../components/containers';
 import { Breadcrumb, Footer, Navbar } from '../../components/layouts';
 import { InputModal, PromptModal } from '../../components/modals';
-import { getItem, removeCollection, updateCollection } from '../../lib/storage';
+import { getItem, removeCollection, removeItem, updateCollection } from '../../lib/storage';
+import { truncate } from '../../lib/utils/word';
 
 const CollectionDetail = ({ id }) => {
 
   const router = useRouter();
   const [updateOpen, setUpdateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [removeOpen, setRemoveOpen] = useState(false);
   const [name, setName] = useState("");
+  const [anime, setAnime] = useState({});
   const [collection, setCollection] = useState([]);
   const [flag, setFlag] = useState(false);
   const [error, setError] = useState(false);
@@ -27,9 +30,9 @@ const CollectionDetail = ({ id }) => {
 
     setName(id ? id.replace('-', ' ') : 'ERROR');
     setCollection(getItem(tempId));
-  }, [id]);
+  }, [id, flag]);
 
-  if(!collection) return <>Error...</>
+  if (!collection) return <>Error...</>
 
   const updateCollectionName = (newName) => {
     const result = updateCollection(name, newName);
@@ -43,7 +46,14 @@ const CollectionDetail = ({ id }) => {
   const deleteCollection = () => {
     const result = removeCollection(name);
 
-    if(result.success) router.push('/collections/');
+    if (result.success) router.push('/collections/');
+  }
+
+  const removeAnime = () => {
+    const result = removeItem(name, anime);
+    
+    if (result.success)
+    setFlag(!flag);
 
     console.log(result);
   }
@@ -55,7 +65,8 @@ const CollectionDetail = ({ id }) => {
         <link rel="shortcut icon" href="/anime-bay-600.svg" />
       </Head>
       <InputModal open={updateOpen} setOpen={setUpdateOpen} title={'Update Collection Name'} click={updateCollectionName} error={error} />
-      <PromptModal open={deleteOpen} setOpen={setDeleteOpen} title={'Deleting this collection'} description={'Are you sure you want to delete this collection? You cannot revert this action.'} prompt={'Delete'} action={deleteCollection}/>
+      <PromptModal open={deleteOpen} setOpen={setDeleteOpen} title={'Deleting this collection'} description={'Are you sure you want to delete this collection? You cannot revert this action.'} prompt={'Delete'} action={deleteCollection} />
+      <PromptModal open={removeOpen} setOpen={setRemoveOpen} title={'Removing ' + anime.title} description={'Are you sure you want this anime removed from this collection? You cannot revert this action.'} prompt={'Remove'} action={removeAnime} />
       <Navbar />
       <PaddedContent verticalMargin='2rem'>
         <Breadcrumb links={[
@@ -80,7 +91,7 @@ const CollectionDetail = ({ id }) => {
           `}>
             <Container css={css`
                 font-size: 48px;
-                font-weight: 600;
+                font-weight: bold;
             `}>
               {name}
             </Container>
@@ -156,7 +167,7 @@ const CollectionDetail = ({ id }) => {
                                 `
                           }>
                             <LinkButton key={anime.id} href={`/animes/` + anime.id} padding='0px'>
-                              {anime.title ? truncate(anime.title.romaji, 30) : "A Title"}
+                              {anime.title ? truncate(anime.title, 30) : "A Title"}
                             </LinkButton>
                           </Container>
                         </Flexbox>
@@ -182,13 +193,26 @@ const CollectionDetail = ({ id }) => {
                             {anime.averageScore ? anime.averageScore : '0'}
                           </Container>
                           <Container css={css`
-                  font-size: small;
-                  padding: 0.25rem 0.3rem;
-                  color: grey;
-              `}>
+                              font-size: small;
+                              padding: 0.25rem 0.3rem;
+                              color: grey;
+                          `}>
                             {anime.episodes ? anime.episodes : '0'} Episodes
                           </Container>
                         </Flexbox>
+                        <Button textColor={ERROR_RED} hoverText={WHITE} backgroundColor={WHITE} css={css`
+                          border-color: ${WHITE};
+                          font-weight:700;
+                          border-width:0px;
+                          width: 100%;
+                          border-top-left-radius: 0;
+                          border-top-right-radius: 0;
+                          padding: 0.75rem 0;
+                          cursor: pointer;
+                        `} click={() => {
+                          setAnime(anime);
+                          setRemoveOpen(true);
+                        }}>Remove</Button>
                       </Flexbox>
                     </Card>
                   ))

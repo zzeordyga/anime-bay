@@ -27,7 +27,7 @@ const AnimeDetail = ({ animeId }) => {
     useEffect(() => {
         const tempCollections = getCollectionsByItem(animeId);
         setCollections(tempCollections.array);
-    }, [flag])
+    }, [flag, animeId])
 
 
     const { loading, error, data: animeInfo } = useQuery(GET_ANIME_BY_ID, {
@@ -57,7 +57,7 @@ const AnimeDetail = ({ animeId }) => {
     } = animeInfo.Media;
 
     const addToCollection = (name) => {
-        const result = createCollectionWithItem(name, { id, coverImage, averageScore, episodes });
+        const result = createCollectionWithItem(name, { id, title : titles.userPreferred, coverImage, averageScore, episodes });
         console.log(result);
         setFlag(!flag);
         setOpen(false);
@@ -78,10 +78,10 @@ const AnimeDetail = ({ animeId }) => {
                     ?
                     <>
                         <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} />
-                        <CollectionModal item={{ id, title : titles.romaji, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                        <CollectionModal item={{ id, title : titles.userPreferred, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
                     </>
                     :
-                    <CollectionModal item={{ id, title : titles.romaji, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                    <CollectionModal item={{ id, title : titles.userPreferred, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
             }
             <Navbar />
             <PaddedContent>
@@ -107,7 +107,7 @@ const AnimeDetail = ({ animeId }) => {
                     `}>
                         <Container css={css`
                             font-size: 48px;
-                            font-weight: 600;
+                            font-weight: bold;
                         `}>
                             {titles.userPreferred}
                         </Container>
@@ -197,7 +197,7 @@ const AnimeDetail = ({ animeId }) => {
                         `}>
                             <Flexbox justify='space-between'>
                                 <p>Episodes</p>
-                                <h4>{episodes} Episodes</h4>
+                                <h4>{episodes} Episode(s)</h4>
                             </Flexbox>
                             <Flexbox justify='space-between'>
                                 <p>Average Score</p>
@@ -225,7 +225,7 @@ const AnimeDetail = ({ animeId }) => {
                                         font-weight:normal;
                                         margin: 0 4px;
                                     `}>
-                                        users
+                                        user(s)
                                     </Container>
                                 </h4>
                             </Flexbox>
@@ -237,9 +237,13 @@ const AnimeDetail = ({ animeId }) => {
                                 <p>Aired</p>
                                 <h4
                                 >
-                                    {convertDate(startDate.year, startDate.month, startDate.day) + ' '}
-                                    to
-                                    {' ' + convertDate(endDate.year, endDate.month, endDate.day)}
+                                    {
+                                        endDate.year === startDate.year && endDate.month === startDate.month 
+                                        ?
+                                        convertDate(startDate.year, startDate.month, startDate.day)
+                                        :
+                                        convertDate(startDate.year, startDate.month, startDate.day) + ' to ' + convertDate(endDate.year, endDate.month, endDate.day)
+                                    }
                                 </h4>
                             </Flexbox>
                             <Flexbox justify='space-between' alignment='flex-start' css={css`

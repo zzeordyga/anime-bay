@@ -287,8 +287,6 @@ export const Pagination = ({
     }
   }
 
-  console.log(pageArray);
-
   return (
     <Flexbox
       css={css`
@@ -333,14 +331,14 @@ export const Pagination = ({
             >
               {"<"}
             </Button>
-            {pageArray.map((buttonPage) => {
-              console.log(buttonPage);
+            {pageArray.map((buttonPage, key) => {
               return buttonPage === "..." ? (
-                <Button disabled={true} css={noRounded}>
+                <Button key={key} disabled={true} css={noRounded}>
                   {buttonPage}
                 </Button>
               ) : (
                 <Button
+                  key={key}
                   click={() => goToPageAction(buttonPage)}
                   css={noRounded}
                   isActive={currPage === buttonPage}

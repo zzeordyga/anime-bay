@@ -1,18 +1,27 @@
 import { useQuery } from '@apollo/client';
-import React, { useState } from 'react';
-import { LinkButton } from '../components/buttons';
+import React, { useEffect, useState } from 'react';
+import { Button, LinkButton } from '../components/buttons';
 import { Card, Container, Flexbox, Grid } from '../components/containers';
 import { initializeApollo } from '../lib/apollo';
 import GET_ANIME from '../lib/queries/getAnime';
 import Image from 'next/image';
 import { css } from '@emotion/react';
 import { Layout, Pagination } from '../components/layouts';
-import { VIVID_CERULEAN } from '../components/colors';
+import { RICH_BLACK, VIVID_CERULEAN } from '../components/colors';
 import { truncate } from '../lib/utils/word';
+import { CollectionModal, InputModal } from '../components/modals';
+import { getAllCollection } from '../lib/storage';
 
 export const AnimeList = () => {
   const [currPage, setCurrPage] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const [selectedAnime, setSelectedAnime] = useState([]);
+  const [isBulking, setIsBulking] = useState(false);
 
+  useEffect(() => {
+
+  }, []);
 
   const { loading, error, data } = useQuery(GET_ANIME, {
     variables: {
@@ -26,6 +35,14 @@ export const AnimeList = () => {
 
   const animeList = data.Page.media;
   const paginationInfo = data.Page.pageInfo;
+
+  const addToCollection = (name) => {
+    const result = createCollection(name);
+    console.log(result);
+    setFlag(!flag);
+    setOpen(false);
+    setCollectionOpen(true);
+  }
 
   const prevPage = () => {
     setCurrPage(page => page - 1);
@@ -41,8 +58,35 @@ export const AnimeList = () => {
 
   return (
     <>
+      <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} />
+      {
+        getAllCollection().length === 0
+          ?
+          <>
+            <CollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+          </>
+          :
+          <CollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+      }
       <Layout>
-        <h1>Anime List</h1>
+        <Flexbox justify='space-between' >
+          <h1>Anime List</h1>
+          {
+            !isBulking
+              ?
+              <Button click={() => {
+                setIsBulking(true);
+              }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>+ Add to Collection</Button>
+              :
+              <Button click={() => {
+                setIsBulking(false);
+                if (getAllCollection().length === 0)
+                  setOpen(!open);
+                else
+                  setCollectionOpen(!collectionOpen);
+              }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>Finalize Selection</Button>
+          }
+        </Flexbox>
         {
           !loading ?
             <div>
@@ -80,24 +124,24 @@ export const AnimeList = () => {
 
                         {/* Title */}
                         <Flexbox css={css`
-                                                    padding: 0.5rem;
-                                                    font-size: larger;
-                                                    text-align: left;
-                                                    width: 85%;
-                                                    min-height: 5rem;
-                                                    /* align-items: ; */
-                                                `}
+                              padding: 0.5rem;
+                              font-size: larger;
+                              text-align: left;
+                              width: 85%;
+                              min-height: 5rem;
+                              /* align-items: ; */
+                          `}
                           justify="start"
                           alignment="flex-start"
                         >
                           <Container css={css`
-                                                overflow: hidden;
-                                                text-overflow: ellipsis;
-                                                
-                                                &:hover {
-                                                    text-decoration: underline ${VIVID_CERULEAN} 2px;
-                                                }
-                                            `
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              
+                              &:hover {
+                                  text-decoration: underline ${VIVID_CERULEAN} 2px;
+                              }
+                          `
                           }>
                             <LinkButton key={anime.id} href={`/animes/` + anime.id} padding='0px'>
                               {truncate(anime.title.romaji, 30)}
