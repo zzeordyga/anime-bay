@@ -10,7 +10,6 @@ import {
   VIVID_CERULEAN,
   WHITE,
 } from "./colors";
-import { flexbox } from "./layouts";
 
 export const Button = ({
   children,
@@ -108,7 +107,7 @@ export const LinkButton = ({
   `;
 
   return (
-    <Link href={href} click={click} css={flexbox}>
+    <Link href={href} click={click}>
       <StyledSpan>{children}</StyledSpan>
     </Link>
   );

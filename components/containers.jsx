@@ -1,7 +1,8 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
+import { useRef } from "react";
 import { LG, MD, SM } from "./breakpoints";
-import { LIGHT_GREY, WHITE } from "./colors";
+import { GREY, LIGHT_GREY, WHITE } from "./colors";
 
 let getWidth = (span) => {
   if (!span) return;
@@ -134,16 +135,61 @@ export const Container = ({ css, children }) => {
   return <StyledContainer>{children}</StyledContainer>;
 };
 
-export const ScrollableContainer = ({ children, height='400px' }) => {
+export const ScrollableContainer = ({ children, height = '400px' }) => {
   const StyledDiv = styled.div`
     height: ${height};
     overflow: auto;
     
     & > * {
       padding: 1rem 2rem;
-      border-bottom: 1px solid ${LIGHT_GREY};
+      border-bottom: 1px solid ${GREY};
     }
   `;
 
   return <StyledDiv>{children}</StyledDiv>;
 };
+
+const CheckboxContainer = ({ id, isChecked, changeAction, name }) => {
+  const checkbox = useRef(null);
+
+  return (
+    <div
+      css={css`
+        background-color: white;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+
+        &:hover {
+          filter: brightness(95%);
+        }
+      `}
+      // onClick={() => {
+      //   changeAction(!checkbox.current.checked);
+      //   checkbox.current.checked = !checkbox.current.checked;
+      // }}
+      >
+      <input
+        type="checkbox"
+        name={id}
+        id={id}
+        checked={isChecked}
+        css={css`
+          border-radius: 0.25rem;
+          height: 1rem;
+          width: 1rem;
+          margin-right: 1rem;
+          z-index: 999;
+        `}
+        ref={(el) => (checkbox.current = el)}
+        onChange={() => {
+          changeAction(!checkbox.current.checked, name);
+          // checkbox.current.checked = !checkbox.current.checked;
+        }}
+      />
+      {name}
+    </div>
+  )
+}
+
+export default CheckboxContainer;

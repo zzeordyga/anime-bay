@@ -1,6 +1,7 @@
 export const WHITE = '#FFFFFF';
 export const BLACK = '#000000';
 export const LIGHT_GREY = 'rgb(243, 244, 246)';
+export const GREY = '#c6c9cf';
 export const RICH_BLACK = '#00171F'
 export const PRUSSIAN_BLUE = '#003459';
 export const DARK_CORNFLOWER = '#003879';

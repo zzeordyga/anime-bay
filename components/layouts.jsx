@@ -4,7 +4,7 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { LG, SM } from "./breakpoints";
 import { BLACK, LIGHT_GREY, RICH_BLACK, WHITE } from "./colors";
-import { Flexbox, PaddedContent } from "./containers";
+import { Container, Flexbox, PaddedContent } from "./containers";
 import { Button, HamburgerMenu, LinkButton } from "./buttons";
 import smallLogo from "../public/anime-bay-600.svg";
 import mediumLogo from "../public/anime-bay-800.svg";
@@ -65,7 +65,7 @@ export const SmElement = styled.div`
 export const Navbar = ({
   links = [
     {
-      href: "/animes",
+      href: "/",
       text: "Anime",
     },
     {
@@ -202,8 +202,6 @@ export const MobileNavbar = ({ links, menuOpened }) => {
               {link.text}
             </LinkButton>
           ))}
-
-          <IconInput></IconInput>
         </Flexbox>
       </div>
     </SmElement>
@@ -367,3 +365,73 @@ export const Pagination = ({
     </Flexbox>
   );
 };
+
+export const Breadcrumb = ({links}) => {
+  return (
+    <Flexbox css={
+      css`
+          margin-top: 1rem;
+          margin-bottom: 0;
+          z-index: 1;
+          position: relative;
+          display: block;
+
+          @media only screen and (min-width: ${LG}) {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+          }
+      `
+    }
+      minHeight={'1rem'}
+    >
+      <Flexbox shrink={1} grow={1} css={css`
+          min-width: 0;
+      `}>
+        <nav>
+          <Flexbox minHeight='1rem'>
+            <div>
+              <Flexbox alignment='center' css={css`
+                                  & > * {
+                                      margin : 1rem 0;
+                                  }
+                              `}
+                minHeight='1rem'>
+                {
+                  links.map((link, index) => (
+                    index === 0 ?
+                      <div key={index}>
+                        <div>
+                          <LinkButton href={link.href} textColor={RICH_BLACK}>
+                            {link.name}
+                          </LinkButton>
+                        </div>
+                      </div>
+                      :
+                      <div key={index}>
+                        <Flexbox>
+                          <Container css={css`
+                                              width: 1rem;
+                                              height: 1rem;
+                                          `}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </Container>
+                          <div>
+                            <LinkButton href={link.href} textColor={RICH_BLACK}>
+                              {link.name}
+                            </LinkButton>
+                          </div>
+                        </Flexbox>
+                      </div>
+                  ))
+                }
+              </Flexbox>
+            </div>
+          </Flexbox>
+        </nav>
+      </Flexbox>
+    </Flexbox>
+  )
+}

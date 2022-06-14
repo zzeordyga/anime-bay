@@ -2,21 +2,33 @@ import { useQuery } from '@apollo/client';
 import { css } from '@emotion/react';
 import Head from 'next/head';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { LG, MD, SM, XL } from '../../components/breakpoints';
 import { Button, LinkButton, TextButton } from '../../components/buttons';
 import { BLACK, RICH_BLACK, VIVID_CERULEAN } from '../../components/colors';
 import { Container, Flexbox, PaddedContent } from '../../components/containers';
-import { Footer, Navbar } from '../../components/layouts';
+import { Breadcrumb, Footer, Navbar } from '../../components/layouts';
 import { initializeApollo } from '../../lib/apollo';
 import GET_ANIME_BY_ID from '../../lib/queries/getAnimeById';
 import { truncate } from '../../lib/utils/word';
 import parse from 'html-react-parser'
 import { convertDate } from '../../lib/utils/dateConverter';
+import { CollectionModal, InputModal } from '../../components/modals';
+import { createCollectionWithItem, getAllCollection, getCollectionsByItem } from '../../lib/storage';
 
 const AnimeDetail = ({ animeId }) => {
     const [currPage, setCurrPage] = useState(1);
     const [less, setLess] = useState(true);
+    const [open, setOpen] = useState(false);
+    const [collectionOpen, setCollectionOpen] = useState(false);
+    const [collections, setCollections] = useState([]);
+    const [flag, setFlag] = useState(false);
+
+    useEffect(() => {
+        const tempCollections = getCollectionsByItem(animeId);
+        setCollections(tempCollections.array);
+    }, [flag])
+
 
     const { loading, error, data: animeInfo } = useQuery(GET_ANIME_BY_ID, {
         variables: {
@@ -30,6 +42,7 @@ const AnimeDetail = ({ animeId }) => {
     if (error) return <p>Error...</p>;
 
     const {
+        id,
         title: titles,
         coverImage,
         description,
@@ -43,10 +56,12 @@ const AnimeDetail = ({ animeId }) => {
         reviews
     } = animeInfo.Media;
 
-    console.log(studios);
-
-    const addToCollection = () => {
-
+    const addToCollection = (name) => {
+        const result = createCollectionWithItem(name, { id, coverImage, averageScore, episodes });
+        console.log(result);
+        setFlag(!flag);
+        setOpen(false);
+        setCollectionOpen(true);
     }
 
     const showLess = () => {
@@ -58,71 +73,28 @@ const AnimeDetail = ({ animeId }) => {
             <Head>
                 <title>Anime Bay</title>
             </Head>
+            {
+                getAllCollection().length === 0
+                    ?
+                    <>
+                        <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} />
+                        <CollectionModal item={{ id, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                    </>
+                    :
+                    <CollectionModal item={{ id, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+            }
             <Navbar />
             <PaddedContent>
-                <Flexbox css={
-                    css`
-                        margin-top: 1rem;
-                        margin-bottom: 0;
-                        z-index: 1;
-                        position: relative;
-                        display: block;
-
-                        @media only screen and (min-width: ${LG}) {
-                            display: flex;
-                            align-items: center;
-                            justify-content: space-between;
-                        }
-                    `
-                }
-                    minHeight={'1rem'}
-                >
-                    <Flexbox shrink={1} grow={1} css={css`
-                        min-width: 0;
-                    `}>
-                        <nav>
-                            <Flexbox minHeight='1rem'>
-                                <div>
-                                    <Flexbox alignment='center' css={css`
-                                                & > * {
-                                                    margin : 1rem 0;
-                                                }
-                                            `}
-                                        minHeight='1rem'>
-                                        <div>
-                                            <div>
-                                                <LinkButton href='/animes' textColor={RICH_BLACK}>
-                                                    Anime List
-                                                </LinkButton>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Flexbox>
-                                                <Container css={css`
-                                                            height: 1.5rem;
-                                                            height: 1.5rem;
-                                                        `}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                    </svg>
-                                                    {/* Somehow you need this */}
-                                                    <Container css={css`
-                                                                visibility: hidden;
-                                                            `}>S</Container>
-                                                </Container>
-                                                <div>
-                                                    <LinkButton href={`/animes/` + animeId} textColor={RICH_BLACK}>
-                                                        {titles.userPreferred}
-                                                    </LinkButton>
-                                                </div>
-                                            </Flexbox>
-                                        </div>
-                                    </Flexbox>
-                                </div>
-                            </Flexbox>
-                        </nav>
-                    </Flexbox>
-                </Flexbox>
+                <Breadcrumb links={[
+                    {
+                        href: '/',
+                        name: 'Anime List',
+                    },
+                    {
+                        href: '/animes/' + animeId,
+                        name: titles.userPreferred,
+                    }
+                ]} />
                 <Flexbox justify='space-between' alignment='baseline'
                     css={css`
                         flex-direction: column;
@@ -173,7 +145,12 @@ const AnimeDetail = ({ animeId }) => {
                         margin-top: 1rem;
                         justify-self: end;
                     `}>
-                        <Button click={addToCollection} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>+ Add to Collection</Button>
+                        <Button click={() => {
+                            if (getAllCollection().length === 0)
+                                setOpen(!open);
+                            else
+                                setCollectionOpen(!collectionOpen);
+                        }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>+ Add to Collection</Button>
                     </Container>
                 </Flexbox>
                 <Flexbox alignment='start' css={
@@ -210,6 +187,10 @@ const AnimeDetail = ({ animeId }) => {
 
                             & h4 {
                                 text-align: end;
+                            }
+
+                            & ul {
+                                margin: 0;
                             }
                         `}>
                             <Flexbox justify='space-between'>
@@ -264,22 +245,20 @@ const AnimeDetail = ({ animeId }) => {
                                     margin: 0;
                                 }
                             `}>
-                                <p>
-                                    <Container
-                                        css={css`
+                                <Container
+                                    css={css`
                                             align-self: flex-start;
                                             position: relative;
                                             top: 0;
                                         `}
-                                    >
-                                        Studios
-                                    </Container>
-                                </p>
+                                >
+                                    Studios
+                                </Container>
                                 <h4>
                                     <ul>
                                         {
                                             studios.map(studio => (
-                                                <li key={studio}>{studio.name}</li>
+                                                <li key={studio.name}>{studio.name}</li>
                                             ))
                                         }
                                     </ul>
@@ -329,6 +308,40 @@ const AnimeDetail = ({ animeId }) => {
                                 :
                                 ''}
                         </p>
+                        <div>
+                            <Container css={css`
+                                font-size: large;
+                                ${collections.length == 0 && 'display : none;'}
+                            `}>Collections with this Anime
+                            </Container>
+                            <Flexbox minHeight='1rem'
+                                alignment='start'
+                                css={css`
+                                    font-size: medium;
+                                    & > * {
+                                        margin-top: 0.5rem;
+                                    }
+                                `}
+                            >
+                                {
+                                    collections.map((collection, id) => (
+                                        <Container
+                                            key={id}
+                                            css={css`
+                                                padding: 0.25rem 0.75rem;
+                                                background-color: ${RICH_BLACK};
+                                                border-radius: 1rem;
+                                                color: white;
+                                                margin-top: 1rem;
+                                                margin-right: 1rem;
+                                                margin-left: 0;
+                                            `}>
+                                            {collection}
+                                        </Container>
+                                    ))
+                                }
+                            </Flexbox>
+                        </div>
                     </Container>
                 </Flexbox>
             </PaddedContent>

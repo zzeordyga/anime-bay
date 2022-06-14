@@ -2,12 +2,15 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
-import { createCollection, putItems, removeItem } from "../lib/storage";
+import { createCollection, getAllCollection, putItems, removeItem } from "../lib/storage";
 import { LG, MD, SM } from "./breakpoints";
 import { Button } from "./buttons";
-import { LIGHT_GREY } from "./colors";
+import { GREY, LIGHT_GREY } from "./colors";
 import { Card, PaddedContent, ScrollableContainer } from "./containers";
 import { InputWithError } from "./inputs";
+import dynamic from 'next/dynamic';
+
+const CheckboxContainer = dynamic(() => import('./containers')); 
 
 export const InputModal = ({
   title,
@@ -15,11 +18,11 @@ export const InputModal = ({
   inputType,
   click,
   placeholder,
-  show = true,
+  open = true,
+  setOpen,
 }) => {
     const value = useRef("");
     const [hasError, setHasError] = useState(false);
-  const [open, setOpen] = useState(show);
 
   const Overlay = styled.div`
     min-height: 100%;
@@ -62,7 +65,7 @@ export const InputModal = ({
           >
             <div
               css={css`
-                font-size: larger;
+                font-size: 2rem;
                 font-weight: bold;
                 margin-bottom: 1rem;
               `}
@@ -87,7 +90,7 @@ export const InputModal = ({
               <Button
                 click={() => {
                   const result = click(value.current);
-                  if(result.success){
+                  if(result && result.success){
                     setHasError(false);
                     setOpen(false);
                   }
@@ -114,10 +117,10 @@ export const InputModal = ({
 
 export const ContainerModal = ({
   children,
-  show = true,
+  open = true,
+  setOpen,
   modalWidth = "30",
 }) => {
-  const [open, setOpen] = useState(show);
 
   const Overlay = styled.div`
     min-height: 100%;
@@ -159,25 +162,48 @@ export const ContainerModal = ({
   );
 };
 
-export const CollectionModal = ({ item, tempCollections, show }) => {
+export const CollectionModal = ({ item, open=false, setOpen, action }) => {
+  
   const value = useRef("");
-  const [open, setOpen] = useState(show);
   const [hasError, setHasError] = useState(false);
-  const [collections, setCollections] = useState(tempCollections);
-  const itemsRef = useRef([]);
-
-  const checkCollectionInArray = (collection) => {
-    const result = collection.array.filter(data => data.id !== item.id);
-
-    return result.length != 0;
-  }
+  const [collections, setCollections] = useState([]);
+  const [flag, setFlag] = useState(false);
 
   useEffect(() => {
-    itemsRef.current = itemsRef.current.slice(0, collections.length);
-  }, [collections]);
+    const temp = getAllCollection();
+    
+    setCollections(temp);
+    
+    console.log("USE EFFECT");
+  }, [flag]);
+
+  const checkCollectionInArray = (collection) => {
+    
+    for (let index = 0; index < collection.length; index++) {
+      const curr = collection[index];
+      
+      if(item.id === curr.id) return true;
+    }
+
+    return false;
+  }
+
+  const editCollection = (checked, name) => {
+    console.log("Editing");
+    let result;
+    if (!checked) {
+      result = putItems(name, item);
+    } else {
+      result = removeItem(name, item);
+    }
+
+    action();
+
+    setFlag(flag => !flag);
+  }
 
   return (
-    <ContainerModal modalWidth={25} show={open}>
+    <ContainerModal modalWidth={25} open={open} setOpen={setOpen}>
       <Card>
         <div
           css={css`
@@ -187,7 +213,7 @@ export const CollectionModal = ({ item, tempCollections, show }) => {
         >
           <div
             css={css`
-              border-bottom: 1px solid ${LIGHT_GREY};
+              border-bottom: 1px solid ${GREY};
             `}
           >
             <h3
@@ -200,47 +226,7 @@ export const CollectionModal = ({ item, tempCollections, show }) => {
           </div>
           <ScrollableContainer>
             {collections.map((collection, key) => (
-              <label
-                htmlFor={key}
-                key={key}
-                css={css`
-                  background-color: white;
-                  display: flex;
-                  align-items: center;
-                  cursor: pointer;
-
-                  &:hover {
-                    filter: brightness(95%);
-                  }
-                `}
-                onClick={() => {
-                  let event = new Event("change", { bubbles: true });
-                  itemsRef.current[key].dispatchEvent(event);
-                }}
-              >
-                <input
-                  type="checkbox"
-                  name={key}
-                  id={key}
-                  checked={checkCollectionInArray(collection)}
-                  css={css`
-                    border-radius: 0.25rem;
-                    height: 1rem;
-                    width: 1rem;
-                    margin-right: 1rem;
-                  `}
-                  ref={(el) => (itemsRef.current[key] = el)}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    if (checked) {
-                      putItems(collection.name, item);
-                    } else {
-                      removeItem(collection.name, item);
-                    }
-                  }}
-                />
-                {collection.name}
-              </label>
+              <CheckboxContainer key={key} id={key} changeAction={editCollection} isChecked={checkCollectionInArray(collection.array)} name={collection.name}/>
             ))}
           </ScrollableContainer>
           <PaddedContent
@@ -276,10 +262,9 @@ export const CollectionModal = ({ item, tempCollections, show }) => {
               <Button
                 click={() => {
                   const result = item ? createCollection(value.current, item) : createCollection(value.current);
-                  if(result.success){
+                  if(result && result.success){
                     setCollections(c => [...c, {name : value.current, array : result.result}])
                     setHasError(false);
-                    setOpen(false);
                   }
                   else{
                     setHasError(true);

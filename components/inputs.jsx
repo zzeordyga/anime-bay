@@ -3,7 +3,7 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import React, { useState } from "react";
 import { LG, SM } from "./breakpoints";
-import { BLACK, ERROR_RED, FRENCH_BLUE, LIGHT_GREY } from "./colors";
+import { BLACK, ERROR_RED, FRENCH_BLUE, GRE, GREY, GREYY } from "./colors";
 
 export const IconInput = () => {
   const StyledDiv = styled.div`
@@ -129,7 +129,7 @@ export const InputWithError = ({
             display: block;
             width: 100%;
             padding: 0.5rem ${hasError ? '2.5rem' : '0.25rem'} 0.5rem 0.25rem;
-            border: 1px ${hasError ? ERROR_RED : LIGHT_GREY} solid;
+            border: 1px ${hasError ? ERROR_RED : GREY} solid;
             color: ${hasError ? ERROR_RED : BLACK};
             border-radius: 0.25rem;
 
