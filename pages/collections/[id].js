@@ -1,9 +1,213 @@
-import React from 'react'
+import { css } from '@emotion/react';
+import Router from 'next/dist/server/router';
+import Head from 'next/head';
+import Image from 'next/image';
+import { useRouter } from 'next/router'
+import React, { useEffect, useState } from 'react'
+import { SM } from '../../components/breakpoints';
+import { Button, LinkButton } from '../../components/buttons';
+import { ERROR_RED, RICH_BLACK, VIVID_CERULEAN, WHITE } from '../../components/colors';
+import { Card, Container, Flexbox, Grid, PaddedContent } from '../../components/containers';
+import { Breadcrumb, Footer, Navbar } from '../../components/layouts';
+import { InputModal, PromptModal } from '../../components/modals';
+import { getItem, removeCollection, updateCollection } from '../../lib/storage';
 
-const CollectionDetail = () => {
+const CollectionDetail = ({ id }) => {
+
+  const router = useRouter();
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [collection, setCollection] = useState([]);
+  const [flag, setFlag] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const tempId = id ? id.replace('-', ' ') : 'ERROR';
+
+    setName(id ? id.replace('-', ' ') : 'ERROR');
+    setCollection(getItem(tempId));
+  }, [id]);
+
+  if(!collection) return <>Error...</>
+
+  const updateCollectionName = (newName) => {
+    const result = updateCollection(name, newName);
+
+    if (result.success) {
+      setUpdateOpen(!updateOpen);
+      router.push('/collections/' + newName.replace(' ', '-'));
+    }
+  }
+
+  const deleteCollection = () => {
+    const result = removeCollection(name);
+
+    if(result.success) router.push('/collections/');
+
+    console.log(result);
+  }
+
   return (
-    <div>CollectionDetail</div>
+    <div>
+      <Head>
+        <title>Anime Bay</title>
+        <link rel="shortcut icon" href="/anime-bay-600.svg" />
+      </Head>
+      <InputModal open={updateOpen} setOpen={setUpdateOpen} title={'Update Collection Name'} click={updateCollectionName} error={error} />
+      <PromptModal open={deleteOpen} setOpen={setDeleteOpen} title={'Deleting this collection'} description={'Are you sure you want to delete this collection? You cannot revert this action.'} prompt={'Delete'} action={deleteCollection}/>
+      <Navbar />
+      <PaddedContent verticalMargin='2rem'>
+        <Breadcrumb links={[
+          {
+            href: '/collections',
+            name: 'Your Collections',
+          },
+          {
+            href: '/collections/' + id,
+            name,
+          }
+        ]} />
+        <Flexbox justify='space-between' alignment='baseline'
+          css={css`
+              flex-direction: column;
+              @media only screen and (min-width: ${SM}) {
+                  flex-direction: row;
+              }
+          `}>
+          <Container css={css`
+              width: 70%;
+          `}>
+            <Container css={css`
+                font-size: 48px;
+                font-weight: 600;
+            `}>
+              {name}
+            </Container>
+          </Container>
+          <Container css={css`
+              margin-top: 1rem;
+              justify-self: end;
+              margin-bottom: 1rem;
+
+              & > * {
+                margin-right: 1rem;
+              }
+          `}>
+            <Button textColor={WHITE} hoverText={VIVID_CERULEAN} backgroundColor={VIVID_CERULEAN} css={css`border-color: ${VIVID_CERULEAN};font-weight:700;border-width:2px;`} click={() => setUpdateOpen(true)}>Update Collection</Button>
+            <Button textColor={WHITE} hoverText={ERROR_RED} backgroundColor={ERROR_RED} css={css`border-color: ${ERROR_RED};font-weight:700;border-width:2px;`} click={() => setDeleteOpen(true)}>Delete Collection</Button>
+          </Container>
+        </Flexbox>
+        <div>
+          {
+            collection.length !== 0
+              ?
+              <Grid gap='8' col={4}>
+                {
+                  collection.map((anime, id) => (
+                    <Card key={id} maxWidth={'20rem'} borderRadius={'0.5rem'} css={css`
+                          position: relative;
+                          transition: all 0.1s ease-in;
+                          bottom: 0;
+                          
+                          &:hover {
+                              bottom: 0.25rem;
+                          }
+
+                          &:hover img {
+                              filter: brightness(90%);
+                          }
+
+                          & img {
+                              border-top-right-radius: 0.5rem;
+                              border-top-left-radius: 0.5rem;
+                          }
+                      `
+                    }>
+                      <Flexbox
+                        direction='column'
+                        justify='center' alignment='start'>
+                        <Image
+                          src={anime.coverImage.large}
+                          alt={"Cover Image"}
+                          width={325}
+                          height={275}
+                        />
+
+                        {/* Title */}
+                        <Flexbox css={css`
+                            padding: 0.5rem;
+                            font-size: larger;
+                            text-align: left;
+                            width: 85%;
+                            min-height: 5rem;
+                            /* align-items: ; */
+                        `}
+                          justify="start"
+                          alignment="flex-start"
+                        >
+                          <Container css={css`
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    
+                                    &:hover {
+                                        text-decoration: underline ${VIVID_CERULEAN} 2px;
+                                    }
+                                `
+                          }>
+                            <LinkButton key={anime.id} href={`/animes/` + anime.id} padding='0px'>
+                              {anime.title ? truncate(anime.title.romaji, 30) : "A Title"}
+                            </LinkButton>
+                          </Container>
+                        </Flexbox>
+
+                        {/* Misc */}
+                        <Flexbox
+                          justify='space-between'
+                          alignment='end'
+                          css={css`
+                            width: 100%;
+                            padding: 0.5rem;
+                            justify-self: baseline;
+                            margin: 0.25rem;
+                        `}
+                        >
+                          <Container css={css`
+                            min-width: 2.25rem;
+                            font-weight: bold;
+                            border: 3px solid ${VIVID_CERULEAN};
+                            padding: 0.25rem 0.3rem;
+                            border-radius: 100%;
+                        `}>
+                            {anime.averageScore ? anime.averageScore : '0'}
+                          </Container>
+                          <Container css={css`
+                  font-size: small;
+                  padding: 0.25rem 0.3rem;
+                  color: grey;
+              `}>
+                            {anime.episodes ? anime.episodes : '0'} Episodes
+                          </Container>
+                        </Flexbox>
+                      </Flexbox>
+                    </Card>
+                  ))
+                }
+              </Grid>
+              :
+              <>Nothing here yet!</>
+          }
+        </div>
+      </PaddedContent>
+      <Footer />
+    </div>
   )
 }
 
-export default [id]
+export const getServerSideProps = async ({ query }) => {
+  return {
+    props: { id: query.id },
+  };
+}
+
+export default CollectionDetail;

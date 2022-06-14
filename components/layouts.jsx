@@ -9,6 +9,7 @@ import { Button, HamburgerMenu, LinkButton } from "./buttons";
 import smallLogo from "../public/anime-bay-600.svg";
 import mediumLogo from "../public/anime-bay-800.svg";
 import { IconInput } from "./inputs";
+import Head from "next/head";
 
 const srOnly = styled.span`
   position: absolute;
@@ -245,9 +246,8 @@ export const Pagination = ({
   nextAction,
   goToPageAction,
   perPage,
-  total
+  total,
 }) => {
-
   const noRounded = css`
     border-radius: 0;
     min-width: 2.5rem;
@@ -261,7 +261,7 @@ export const Pagination = ({
     font-size: large;
     font-weight: bold;
     padding: 0.5rem;
-  `
+  `;
 
   const [pageArray, setPageArray] = useState([]);
 
@@ -304,15 +304,21 @@ export const Pagination = ({
     >
       <SmElement100>
         <Flexbox shrink={1} grow={1} justify="space-evenly">
-          <Button css={bigButton} click={prevAction} disabled={currPage === 1}>Prev</Button>
-          <Button css={bigButton} click={nextAction} disabled={!hasNext}>Next</Button>
+          <Button css={bigButton} click={prevAction} disabled={currPage === 1}>
+            Prev
+          </Button>
+          <Button css={bigButton} click={nextAction} disabled={!hasNext}>
+            Next
+          </Button>
         </Flexbox>
       </SmElement100>
 
       <LgElement100>
         <Flexbox justify="space-between" grow={1} shrink={1}>
           <div>
-            <p>Showing {((currPage - 1) * perPage) + 1} to {total} of results</p>
+            <p>
+              Showing {(currPage - 1) * perPage + 1} to {total} of results
+            </p>
           </div>
 
           <div>
@@ -366,72 +372,104 @@ export const Pagination = ({
   );
 };
 
-export const Breadcrumb = ({links}) => {
+export const Layout = ({ children, title="Anime Bay" }) => {
   return (
-    <Flexbox css={
-      css`
-          margin-top: 1rem;
-          margin-bottom: 0;
-          z-index: 1;
-          position: relative;
-          display: block;
+    <>
+      <Head>
+        <title>{title}</title>
+        <link rel="shortcut icon" href="/anime-bay-600.svg" />
+      </Head>
+      <Navbar />
+      <PaddedContent verticalMargin="2rem">
+        {children}
+      </PaddedContent>
+      <Footer />
+    </>
+  );
+};
 
-          @media only screen and (min-width: ${LG}) {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-          }
-      `
-    }
-      minHeight={'1rem'}
+export const Breadcrumb = ({ links }) => {
+  return (
+    <Flexbox
+      css={css`
+        margin-top: 1rem;
+        margin-bottom: 0;
+        z-index: 1;
+        position: relative;
+        display: block;
+
+        @media only screen and (min-width: ${LG}) {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+      `}
+      minHeight={"1rem"}
     >
-      <Flexbox shrink={1} grow={1} css={css`
+      <Flexbox
+        shrink={1}
+        grow={1}
+        css={css`
           min-width: 0;
-      `}>
+        `}
+      >
         <nav>
-          <Flexbox minHeight='1rem'>
+          <Flexbox minHeight="1rem">
             <div>
-              <Flexbox alignment='center' css={css`
-                                  & > * {
-                                      margin : 1rem 0;
-                                  }
-                              `}
-                minHeight='1rem'>
-                {
-                  links.map((link, index) => (
-                    index === 0 ?
-                      <div key={index}>
+              <Flexbox
+                alignment="center"
+                css={css`
+                  & > * {
+                    margin: 1rem 0;
+                  }
+                `}
+                minHeight="1rem"
+              >
+                {links.map((link, index) =>
+                  index === 0 ? (
+                    <div key={index}>
+                      <div>
+                        <LinkButton href={link.href} textColor={RICH_BLACK}>
+                          {link.name}
+                        </LinkButton>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={index}>
+                      <Flexbox>
+                        <Container
+                          css={css`
+                            width: 1rem;
+                            height: 1rem;
+                          `}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </Container>
                         <div>
                           <LinkButton href={link.href} textColor={RICH_BLACK}>
                             {link.name}
                           </LinkButton>
                         </div>
-                      </div>
-                      :
-                      <div key={index}>
-                        <Flexbox>
-                          <Container css={css`
-                                              width: 1rem;
-                                              height: 1rem;
-                                          `}>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </Container>
-                          <div>
-                            <LinkButton href={link.href} textColor={RICH_BLACK}>
-                              {link.name}
-                            </LinkButton>
-                          </div>
-                        </Flexbox>
-                      </div>
-                  ))
-                }
+                      </Flexbox>
+                    </div>
+                  )
+                )}
               </Flexbox>
             </div>
           </Flexbox>
         </nav>
       </Flexbox>
     </Flexbox>
-  )
-}
+  );
+};

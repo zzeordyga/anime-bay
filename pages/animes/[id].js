@@ -78,10 +78,10 @@ const AnimeDetail = ({ animeId }) => {
                     ?
                     <>
                         <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} />
-                        <CollectionModal item={{ id, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                        <CollectionModal item={{ id, title : titles.romaji, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
                     </>
                     :
-                    <CollectionModal item={{ id, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                    <CollectionModal item={{ id, title : titles.romaji, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
             }
             <Navbar />
             <PaddedContent>
@@ -102,11 +102,13 @@ const AnimeDetail = ({ animeId }) => {
                             flex-direction: row;
                         }
                     `}>
-                    <div>
-                        <Container css={css`
-                        font-size: 48px;
-                        font-weight: 600;
+                    <Container css={css`
+                        width: 70%;
                     `}>
+                        <Container css={css`
+                            font-size: 48px;
+                            font-weight: 600;
+                        `}>
                             {titles.userPreferred}
                         </Container>
                         <Container css={css`
@@ -140,7 +142,7 @@ const AnimeDetail = ({ animeId }) => {
                                 ))
                             }
                         </Flexbox>
-                    </div>
+                    </Container>
                     <Container css={css`
                         margin-top: 1rem;
                         justify-self: end;

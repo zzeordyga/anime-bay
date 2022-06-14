@@ -2,15 +2,27 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
-import { createCollection, getAllCollection, putItems, removeItem } from "../lib/storage";
+import {
+  createCollection,
+  getAllCollection,
+  putItems,
+  removeItem,
+} from "../lib/storage";
 import { LG, MD, SM } from "./breakpoints";
 import { Button } from "./buttons";
-import { GREY, LIGHT_GREY } from "./colors";
+import {
+  ERROR_RED,
+  GREY,
+  LIGHT_GREY,
+  RICH_BLACK,
+  VIVID_CERULEAN,
+  WHITE,
+} from "./colors";
 import { Card, PaddedContent, ScrollableContainer } from "./containers";
 import { InputWithError } from "./inputs";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const CheckboxContainer = dynamic(() => import('./containers')); 
+const CheckboxContainer = dynamic(() => import("./containers"));
 
 export const InputModal = ({
   title,
@@ -20,9 +32,11 @@ export const InputModal = ({
   placeholder,
   open = true,
   setOpen,
+  error = false,
+  promptMessage = "Submit",
 }) => {
-    const value = useRef("");
-    const [hasError, setHasError] = useState(false);
+  const value = useRef("");
+  const [hasError, setHasError] = useState(error);
 
   const Overlay = styled.div`
     min-height: 100%;
@@ -77,8 +91,10 @@ export const InputModal = ({
               type={inputType}
               hasLabel={false}
               placeholder={placeholder}
-              hasError={hasError}
-              error={"Name cannot have any special characters and must be unique!"}
+              hasError={false}
+              error={
+                "Name cannot have any special characters and must be unique!"
+              }
               reference={value}
             />
 
@@ -90,11 +106,10 @@ export const InputModal = ({
               <Button
                 click={() => {
                   const result = click(value.current);
-                  if(result && result.success){
+                  if (result && result.success) {
                     setHasError(false);
                     setOpen(false);
-                  }
-                  else{
+                  } else {
                     setHasError(true);
                   }
                 }}
@@ -104,7 +119,7 @@ export const InputModal = ({
                     font-weight: 600;
                   `}
                 >
-                  Submit
+                  {promptMessage}
                 </span>
               </Button>
             </div>
@@ -121,7 +136,6 @@ export const ContainerModal = ({
   setOpen,
   modalWidth = "30",
 }) => {
-
   const Overlay = styled.div`
     min-height: 100%;
     min-width: 100%;
@@ -162,8 +176,99 @@ export const ContainerModal = ({
   );
 };
 
-export const CollectionModal = ({ item, open=false, setOpen, action }) => {
-  
+export const PromptModal = ({
+  action,
+  title,
+  description = "",
+  open,
+  setOpen,
+  prompt = "Confirm",
+}) => {
+  return (
+    <ContainerModal modalWidth={25} open={open} setOpen={setOpen}>
+      <Card>
+        <div
+          css={css`
+            padding: 0.25rem 0;
+            text-align: center;
+          `}
+        >
+          <PaddedContent
+            verticalPadding={"1rem"}
+            css={css`
+              border-radius: 2rem;
+            `}
+          >
+            <div
+              css={css`
+                font-size: 2.5rem;
+                font-weight: bold;
+              `}
+            >
+              {title}
+            </div>
+
+            <div
+              css={css`
+                font-size: 1rem;
+                margin: 1rem 0;
+                color: rgb(107 114 128); ;
+              `}
+            >
+              {description}
+            </div>
+
+            <div
+              css={css`
+                & > * {
+                  margin-left: 1rem;
+                }
+              `}
+            >
+              <Button
+                textColor={WHITE}
+                hoverText={ERROR_RED}
+                backgroundColor={ERROR_RED}
+                borderColor={ERROR_RED}
+                click={() => {
+                  action();
+                  setOpen(false);
+                }}
+              >
+                <span
+                  css={css`
+                    font-weight: 700;
+                  `}
+                >
+                  {prompt}
+                </span>
+              </Button>
+              <Button
+                textColor={RICH_BLACK}
+                hoverText={RICH_BLACK}
+                backgroundColor={WHITE}
+                hoverBackground={LIGHT_GREY}
+                click={action}
+              >
+                <span
+                  css={css`
+                    border-color: ${VIVID_CERULEAN};
+                    font-weight: 700;
+                    border-width: 2px;
+                  `}
+                >
+                  Cancel
+                </span>
+              </Button>
+            </div>
+          </PaddedContent>
+        </div>
+      </Card>
+    </ContainerModal>
+  );
+};
+
+export const CollectionModal = ({ item, open = false, setOpen, action }) => {
   const value = useRef("");
   const [hasError, setHasError] = useState(false);
   const [collections, setCollections] = useState([]);
@@ -171,22 +276,21 @@ export const CollectionModal = ({ item, open=false, setOpen, action }) => {
 
   useEffect(() => {
     const temp = getAllCollection();
-    
+
     setCollections(temp);
-    
+
     console.log("USE EFFECT");
   }, [flag]);
 
   const checkCollectionInArray = (collection) => {
-    
     for (let index = 0; index < collection.length; index++) {
       const curr = collection[index];
-      
-      if(item.id === curr.id) return true;
+
+      if (item.id === curr.id) return true;
     }
 
     return false;
-  }
+  };
 
   const editCollection = (checked, name) => {
     console.log("Editing");
@@ -199,8 +303,8 @@ export const CollectionModal = ({ item, open=false, setOpen, action }) => {
 
     action();
 
-    setFlag(flag => !flag);
-  }
+    setFlag((flag) => !flag);
+  };
 
   return (
     <ContainerModal modalWidth={25} open={open} setOpen={setOpen}>
@@ -226,7 +330,13 @@ export const CollectionModal = ({ item, open=false, setOpen, action }) => {
           </div>
           <ScrollableContainer>
             {collections.map((collection, key) => (
-              <CheckboxContainer key={key} id={key} changeAction={editCollection} isChecked={checkCollectionInArray(collection.array)} name={collection.name}/>
+              <CheckboxContainer
+                key={key}
+                id={key}
+                changeAction={editCollection}
+                isChecked={checkCollectionInArray(collection.array)}
+                name={collection.name}
+              />
             ))}
           </ScrollableContainer>
           <PaddedContent
@@ -250,7 +360,9 @@ export const CollectionModal = ({ item, open=false, setOpen, action }) => {
               label={"collection"}
               placeholder={"Input your name here"}
               hasError={hasError}
-              error={"Name cannot have any special characters and must be unique!"}
+              error={
+                "Name cannot have any special characters and must be unique!"
+              }
               reference={value}
             />
 
@@ -261,12 +373,16 @@ export const CollectionModal = ({ item, open=false, setOpen, action }) => {
             >
               <Button
                 click={() => {
-                  const result = item ? createCollection(value.current, item) : createCollection(value.current);
-                  if(result && result.success){
-                    setCollections(c => [...c, {name : value.current, array : result.result}])
+                  const result = item
+                    ? createCollection(value.current, item)
+                    : createCollection(value.current);
+                  if (result && result.success) {
+                    setCollections((c) => [
+                      ...c,
+                      { name: value.current, array: result.result },
+                    ]);
                     setHasError(false);
-                  }
-                  else{
+                  } else {
                     setHasError(true);
                   }
                 }}

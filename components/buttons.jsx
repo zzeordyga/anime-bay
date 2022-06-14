@@ -16,7 +16,10 @@ export const Button = ({
   padding = "6px",
   backgroundColor = WHITE,
   textColor = FRENCH_BLUE,
+  borderColor,
+  hoverBorder,
   hoverText = WHITE,
+  hoverBackground,
   uppercase = true,
   css,
   click,
@@ -26,7 +29,7 @@ export const Button = ({
   const StyledButton = styled.button`
     color: ${textColor};
     padding: ${padding};
-    border: 0.75px solid ${textColor};
+    border: 0.75px solid ${borderColor ? borderColor : textColor};
     background-color: ${backgroundColor};
     border-radius: 0.25rem;
     transition: all ease-in 0.075s;
@@ -36,7 +39,7 @@ export const Button = ({
     ${css}
 
     &:hover {
-      background-color: ${textColor};
+      background-color: ${hoverBackground ? hoverBackground : textColor};
       color: ${hoverText};
     }
 
