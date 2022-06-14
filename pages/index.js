@@ -1,5 +1,4 @@
 import { useQuery } from '@apollo/client';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { LinkButton } from '../components/buttons';
 import { Card, Container, Flexbox, Grid, PaddedContent } from '../components/containers';
@@ -14,7 +13,6 @@ import { truncate } from '../lib/utils/word';
 
 
 export const AnimeList = () => {
-    const router = useRouter();
     const [currPage, setCurrPage] = useState(1);
 
 

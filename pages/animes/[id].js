@@ -5,7 +5,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import { LG, MD, SM, XL } from '../../components/breakpoints';
 import { Button, LinkButton, TextButton } from '../../components/buttons';
-import { BLACK, RICH_BLACK, VIVID_CERULEAN } from '../../components/colors';
+import { BLACK, GREY, RICH_BLACK, VIVID_CERULEAN, WHITE } from '../../components/colors';
 import { Container, Flexbox, PaddedContent } from '../../components/containers';
 import { Breadcrumb, Footer, Navbar } from '../../components/layouts';
 import { initializeApollo } from '../../lib/apollo';
@@ -336,7 +336,9 @@ const AnimeDetail = ({ animeId }) => {
                                                 margin-right: 1rem;
                                                 margin-left: 0;
                                             `}>
-                                            {collection}
+                                            <LinkButton href={'/collections/' + collection.replace(' ', '-')} textColor={GREY} hoverColor={WHITE}>
+                                                {collection}
+                                            </LinkButton>
                                         </Container>
                                     ))
                                 }
