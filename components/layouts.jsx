@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
@@ -10,6 +10,7 @@ import smallLogo from "../public/anime-bay-600.svg";
 import mediumLogo from "../public/anime-bay-800.svg";
 import { IconInput } from "./inputs";
 import Head from "next/head";
+import Link from "next/link";
 
 const srOnly = styled.span`
   position: absolute;
@@ -103,20 +104,24 @@ export const Navbar = ({
             {/* Navigations */}
             <Flexbox>
               <SmElement>
-                <Image
-                  src={smallLogo}
-                  alt="Small Logo"
-                  width={40}
-                  height={48}
-                />
+                <Link href={'/'}>
+                  <Image
+                    src={smallLogo}
+                    alt="Small Logo"
+                    width={40}
+                    height={48}
+                  />
+                </Link>
               </SmElement>
               <LgElement>
-                <Image
-                  src={mediumLogo}
-                  alt="Large Logo"
-                  width={160}
-                  height={60}
-                />
+                <Link href={'/'}>
+                  <Image
+                    src={mediumLogo}
+                    alt="Large Logo"
+                    width={160}
+                    height={60}
+                  />
+                </Link>
               </LgElement>
 
               {/* Navigations */}

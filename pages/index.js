@@ -77,7 +77,7 @@ export const AnimeList = () => {
           ?
           <>
             <ArrayCollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
-        </>
+          </>
           :
           <ArrayCollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
       }
@@ -93,13 +93,15 @@ export const AnimeList = () => {
               }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>+ Add to Collection</Button>
               :
               <Container>
-                <Button click={() => {
-                  setIsBulking(false);
-                  if (getAllCollection().length === 0)
-                    setOpen(!open);
-                  else
+                {
+                  selectedAnime.length != 0 &&
+                  <Button click={() => {
+                    setIsBulking(false);
                     setCollectionOpen(!collectionOpen);
-                }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>Finalize Selection</Button>
+                  }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>
+                    Finalize Selection
+                  </Button>
+                }
                 <Button click={() => {
                   setIsBulking(false);
                   setSelectedAnime([]);
@@ -114,7 +116,7 @@ export const AnimeList = () => {
                 {
                   animeList.map(anime => (
                     <Card key={anime.id} maxWidth={'20rem'} borderRadius={'0.5rem'} css={
-                        css`
+                      css`
                           position: relative;
                           transition: all 0.1s ease-in;
                           bottom: 0;
@@ -166,12 +168,24 @@ export const AnimeList = () => {
                         }
                       `}
                           click={() => {
-                            setSelectedAnime([...selectedAnime, anime]);
+                            if (!checkAnimeInCollection(anime))
+                              setSelectedAnime([...selectedAnime, anime]);
+                            else {
+                              const newList = [...selectedAnime];
+                              newList.splice(selectedAnime.indexOf(anime), 1);
+                              setSelectedAnime(newList);
+                            }
                           }}
                         >
                           <CheckboxContainer
                             changeAction={() => {
-                              setSelectedAnime([...selectedAnime, anime]);
+                              if (!checkAnimeInCollection(anime))
+                                setSelectedAnime([...selectedAnime, anime]);
+                              else {
+                                const newList = [...selectedAnime];
+                                newList.splice(selectedAnime.indexOf(anime), 1);
+                                setSelectedAnime(newList);
+                              }
                             }}
                             isChecked={checkAnimeInCollection(anime)}
                             disabled={true}
