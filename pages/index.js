@@ -1,27 +1,32 @@
 import { useQuery } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { Button, LinkButton } from '../components/buttons';
-import { Card, Container, Flexbox, Grid } from '../components/containers';
+import CheckboxContainer, { Card, Container, Flexbox, Grid } from '../components/containers';
 import { initializeApollo } from '../lib/apollo';
 import GET_ANIME from '../lib/queries/getAnime';
 import Image from 'next/image';
 import { css } from '@emotion/react';
-import { Layout, Pagination } from '../components/layouts';
+import { Layout, Loading, Pagination } from '../components/layouts';
 import { RICH_BLACK, VIVID_CERULEAN } from '../components/colors';
 import { truncate } from '../lib/utils/word';
-import { CollectionModal, InputModal } from '../components/modals';
+import { ArrayCollectionModal, CollectionModal, InputModal, Snackbar } from '../components/modals';
 import { getAllCollection } from '../lib/storage';
+import { LG, MD, SM } from '../components/breakpoints';
 
 export const AnimeList = () => {
   const [currPage, setCurrPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const [collections, setCollections] = useState([]);
   const [collectionOpen, setCollectionOpen] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState([]);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
   const [isBulking, setIsBulking] = useState(false);
+  const [flag, setFlag] = useState(false);
 
   useEffect(() => {
-
-  }, []);
+    setCollections(getAllCollection());
+  }, [flag]);
 
   const { loading, error, data } = useQuery(GET_ANIME, {
     variables: {
@@ -30,7 +35,7 @@ export const AnimeList = () => {
     }
   });
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
   if (error) return <p>Error...</p>;
 
   const animeList = data.Page.media;
@@ -38,10 +43,16 @@ export const AnimeList = () => {
 
   const addToCollection = (name) => {
     const result = createCollection(name);
-    console.log(result);
-    setFlag(!flag);
-    setOpen(false);
-    setCollectionOpen(true);
+
+    if (result.success) {
+      setFlag(!flag);
+      setOpen(false);
+      setCollectionOpen(true);
+    }
+    else {
+      setSnackOpen(true);
+      setSnackMessage(result.error);
+    }
   }
 
   const prevPage = () => {
@@ -56,20 +67,23 @@ export const AnimeList = () => {
     setCurrPage(newPage);
   }
 
+  const checkAnimeInCollection = (anime) => selectedAnime.indexOf(anime) != -1;
+
   return (
     <>
-      <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} />
+      {/* <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} /> */}
       {
-        getAllCollection().length === 0
+        collections.length === 0
           ?
           <>
-            <CollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
-          </>
+            <ArrayCollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+        </>
           :
-          <CollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+          <ArrayCollectionModal item={selectedAnime} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
       }
+      <Snackbar setOpen={() => setSnackOpen(false)} open={snackOpen}>{snackMessage}</Snackbar>
       <Layout>
-        <Flexbox justify='space-between' >
+        <Flexbox justify='space-between' css={css`margin-bottom:1.5rem;`}>
           <h1>Anime List</h1>
           {
             !isBulking
@@ -78,13 +92,19 @@ export const AnimeList = () => {
                 setIsBulking(true);
               }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>+ Add to Collection</Button>
               :
-              <Button click={() => {
-                setIsBulking(false);
-                if (getAllCollection().length === 0)
-                  setOpen(!open);
-                else
-                  setCollectionOpen(!collectionOpen);
-              }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>Finalize Selection</Button>
+              <Container>
+                <Button click={() => {
+                  setIsBulking(false);
+                  if (getAllCollection().length === 0)
+                    setOpen(!open);
+                  else
+                    setCollectionOpen(!collectionOpen);
+                }} textColor={RICH_BLACK} css={css`font-weight:800;border-width:2px;`}>Finalize Selection</Button>
+                <Button click={() => {
+                  setIsBulking(false);
+                  setSelectedAnime([]);
+                }} textColor={RICH_BLACK} css={css`margin-left: 1rem;font-weight:800;border-width:2px;`}>Cancel</Button>
+              </Container>
           }
         </Flexbox>
         {
@@ -93,25 +113,71 @@ export const AnimeList = () => {
               <Grid gap='8'>
                 {
                   animeList.map(anime => (
-                    <Card key={anime.id} maxWidth={'20rem'} borderRadius={'0.5rem'} css={css`
-                                position: relative;
-                                transition: all 0.1s ease-in;
-                                bottom: 0;
-                                
-                                &:hover {
-                                    bottom: 0.25rem;
-                                }
+                    <Card key={anime.id} maxWidth={'20rem'} borderRadius={'0.5rem'} css={
+                        css`
+                          position: relative;
+                          transition: all 0.1s ease-in;
+                          bottom: 0;
+                          
+                          &:hover {
+                              bottom: 0.25rem;
+                          }
 
-                                &:hover img {
-                                    filter: brightness(90%);
-                                }
+                          &:hover img {
+                              filter: brightness(90%);
+                          }
 
-                                & img {
-                                    border-top-right-radius: 0.5rem;
-                                    border-top-left-radius: 0.5rem;
-                                }
-                            `
+                          & img {
+                              border-top-right-radius: 0.5rem;
+                              border-top-left-radius: 0.5rem;
+                          }
+                      `
                     }>
+
+                      {
+                        isBulking &&
+                        <Container css={css`
+                        width: 100%;
+                        background-color: rgba(0, 0, 0, 0.2);
+                        height: 100%;
+                        position: absolute;
+                        z-index: 100;
+                        border-radius: 0.5rem;
+
+                        & > *{
+                          position: absolute;
+                          top: 0.25rem;
+                          right: 0.25rem;
+                        }
+
+                        & input[type=checkbox] {
+                          min-height: 2rem;
+                          min-width: 2rem;
+                          border-radius: 0.5rem;
+                          color: aliceblue;
+                          filter: invert(100%) brightness(1.7) saturate(50%);
+                        }
+
+                        @media only screen and (min-width: ${LG}) {
+                          & input[type=checkbox] {
+                            min-height: 1.25rem;
+                            min-width: 1.25rem;
+                          } 
+                        }
+                      `}
+                          click={() => {
+                            setSelectedAnime([...selectedAnime, anime]);
+                          }}
+                        >
+                          <CheckboxContainer
+                            changeAction={() => {
+                              setSelectedAnime([...selectedAnime, anime]);
+                            }}
+                            isChecked={checkAnimeInCollection(anime)}
+                            disabled={true}
+                          />
+                        </Container>
+                      }
                       <Flexbox
                         direction='column'
                         justify='center' alignment='start'>
@@ -196,7 +262,7 @@ export const AnimeList = () => {
               />
             </div>
             :
-            <p>Loading...</p>
+            <Loading />
         }
       </Layout>
     </>

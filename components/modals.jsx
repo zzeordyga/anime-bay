@@ -1,15 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createCollection,
   getAllCollection,
   putItems,
   removeItem,
 } from "../lib/storage";
-import { LG, MD, SM } from "./breakpoints";
-import { Button } from "./buttons";
+import { LG, SM } from "./breakpoints";
+import { Button, TextButton } from "./buttons";
 import {
   ERROR_RED,
   GREY,
@@ -18,7 +18,7 @@ import {
   VIVID_CERULEAN,
   WHITE,
 } from "./colors";
-import { Card, PaddedContent, ScrollableContainer } from "./containers";
+import { Card, Container, Flexbox, PaddedContent, ScrollableContainer } from "./containers";
 import { InputWithError } from "./inputs";
 import dynamic from "next/dynamic";
 
@@ -135,6 +135,7 @@ export const ContainerModal = ({
   open = true,
   setOpen,
   modalWidth = "30",
+  openNotif,
 }) => {
   const Overlay = styled.div`
     min-height: 100%;
@@ -175,6 +176,57 @@ export const ContainerModal = ({
     </>
   );
 };
+
+
+export const Snackbar = ({ children, padding = "1rem", modalWidth = '30', open = true, setOpen }) => {
+  const Snackbar = styled.div`
+    color: white;
+    text-align: center;
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    font-weight: normal;
+    font-size: 1.25rem;
+    border-radius: 2rem;
+
+    min-width: 60%;
+
+    @media only screen and (min-width: ${SM}) {
+      min-width: ${modalWidth * 1.5 + "%"};
+    }
+
+    @media only screen and (min-width: ${LG}) {
+      min-width: ${modalWidth + "%"};
+    }
+
+    ${!open ? `display : none;` : ""};
+  `;
+
+  return (
+    <Snackbar>
+      <PaddedContent horizontalPadding={padding} verticalPadding={padding} backgroundColor={RICH_BLACK}>
+        <Flexbox justify="space-between" alignment="center" wrap="nowrap">
+          <Container>
+            <span>{children}</span>
+          </Container>
+
+          <TextButton
+            bold="800"
+            textColor={GREY}
+            hoverColor={LIGHT_GREY}
+            fontSize="1.25rem"
+            click={setOpen}
+            activeColor={WHITE}
+          >
+            X
+          </TextButton>
+        </Flexbox>
+      </PaddedContent>
+    </Snackbar>
+  )
+}
 
 export const PromptModal = ({
   action,
@@ -278,8 +330,6 @@ export const CollectionModal = ({ item, open = false, setOpen, action }) => {
     const temp = getAllCollection();
 
     setCollections(temp);
-
-    console.log("USE EFFECT");
   }, [flag]);
 
   const checkCollectionInArray = (collection) => {
@@ -292,8 +342,7 @@ export const CollectionModal = ({ item, open = false, setOpen, action }) => {
     return false;
   };
 
-  const editCollection = (checked, name) => {
-    console.log("Editing");
+  const editCollection = (checked, name, ...params) => {
     let result;
     if (!checked) {
       result = putItems(name, item);
@@ -301,9 +350,14 @@ export const CollectionModal = ({ item, open = false, setOpen, action }) => {
       result = removeItem(name, item);
     }
 
-    action();
 
-    setFlag((flag) => !flag);
+    if (result.success) {
+      action();
+      setFlag((flag) => !flag);
+    }
+    else {
+
+    }
   };
 
   return (
@@ -335,6 +389,157 @@ export const CollectionModal = ({ item, open = false, setOpen, action }) => {
                 id={key}
                 changeAction={editCollection}
                 isChecked={checkCollectionInArray(collection.array)}
+                name={collection.name}
+              />
+            ))}
+          </ScrollableContainer>
+          <PaddedContent
+            verticalPadding={"1rem"}
+            css={css`
+              border-radius: 2rem;
+            `}
+          >
+            <div
+              css={css`
+                padding-top: 1rem;
+                border-top: 1px solid ${LIGHT_GREY};
+                font-size: larger;
+                font-weight: bold;
+                margin-bottom: 1rem;
+              `}
+            >
+              Create Collection
+            </div>
+            <InputWithError
+              label={"collection"}
+              placeholder={"Input your name here"}
+              hasError={hasError}
+              error={
+                "Name cannot have any special characters and must be unique!"
+              }
+              reference={value}
+            />
+
+            <div
+              css={css`
+                margin-top: 1rem;
+              `}
+            >
+              <Button
+                click={() => {
+                  const result = item
+                    ? createCollection(value.current, item)
+                    : createCollection(value.current);
+                  if (result && result.success) {
+                    setCollections((c) => [
+                      ...c,
+                      { name: value.current, array: result.result },
+                    ]);
+                    setHasError(false);
+                  } else {
+                    setHasError(true);
+                  }
+                }}
+              >
+                <span
+                  css={css`
+                    font-weight: 600;
+                  `}
+                >
+                  Submit
+                </span>
+              </Button>
+            </div>
+          </PaddedContent>
+        </div>
+      </Card>
+    </ContainerModal>
+  );
+};
+
+export const ArrayCollectionModal = ({ item, open = false, setOpen, action }) => {
+  const value = useRef("");
+  const [hasError, setHasError] = useState(false);
+  const [currCollection,  setCurrCollection] = useState({});
+  const [collections, setCollections] = useState([]);
+  const [selectedList, setSelectedList] = useState([]);
+  const [flag, setFlag] = useState(false);
+
+  useEffect(() => {
+    const temp = getAllCollection();
+
+    setCollections(temp);
+    setSelectedList(temp.map((data) => {
+      return false;
+    }));
+  }, [flag]);
+
+  const checkCollectionInArray = (collection) => {
+    const index = collections.indexOf(collection);
+
+    if (index == -1) return false;
+
+    return selectedList[index];
+  };
+
+  const editCollection = (checked, name, collection) => {
+    for (let index = 0; index < item.length; index++) {
+      const collectionIndex = collections.indexOf(collection);
+
+      if(collectionIndex == -1) continue;
+
+      const anime = item[index];
+      let result;
+      if (!checked) {
+        result = putItems(name, anime);
+      } else {
+        result = removeItem(name, anime);
+      }
+
+      if (!result.success) {
+        console.log(result);
+      }
+
+      let newList = selectedList;
+
+      newList[collectionIndex] = !checked;
+
+      setSelectedList(newList);
+    }
+
+    action();
+  };
+
+  return (
+    <ContainerModal modalWidth={25} open={open} setOpen={setOpen}>
+      <Card>
+        <div
+          css={css`
+            padding: 0.25rem 0;
+            text-align: left;
+          `}
+        >
+          <div
+            css={css`
+              border-bottom: 1px solid ${GREY};
+            `}
+          >
+            <h3
+              css={css`
+                margin-left: 2rem;
+              `}
+            >
+              Add to..
+            </h3>
+          </div>
+          <ScrollableContainer>
+            {collections.map((collection, key) => (
+              <CheckboxContainer
+                key={key}
+                id={key}
+                param={collection}
+                changeAction={editCollection}
+                isChecked={checkCollectionInArray(collection)}
                 name={collection.name}
               />
             ))}

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { LG, SM } from "./breakpoints";
-import { BLACK, LIGHT_GREY, RICH_BLACK, WHITE } from "./colors";
+import { BLACK, LIGHT_GREY, RICH_BLACK, VIVID_CERULEAN, VIVID_CERULEAN_600, WHITE } from "./colors";
 import { Container, Flexbox, PaddedContent } from "./containers";
 import { Button, HamburgerMenu, LinkButton } from "./buttons";
 import smallLogo from "../public/anime-bay-600.svg";
@@ -370,7 +370,7 @@ export const Pagination = ({
   );
 };
 
-export const Layout = ({ children, title="Anime Bay" }) => {
+export const Layout = ({ children, title = "Anime Bay" }) => {
   return (
     <>
       <Head>
@@ -471,3 +471,48 @@ export const Breadcrumb = ({ links }) => {
     </Flexbox>
   );
 };
+
+export const Loading = () => {
+  const StyledLoad = styled.div`
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 50px;
+    width: 50px;
+    margin: -25px 0 0 -25px;
+    border: 4px ${VIVID_CERULEAN} solid;
+    border-top: 4px ${VIVID_CERULEAN_600} solid;
+    border-bottom: 4px ${VIVID_CERULEAN_600} solid;
+    border-radius: 50%;
+    -webkit-animation: spin1 1s infinite linear;
+            animation: spin1 1s infinite linear;
+
+    @-webkit-keyframes spin1 {
+      from {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+      }
+      to {
+        -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+      }
+    }
+    @keyframes spin1 {
+      from {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+      }
+      to {
+        -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+        -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+      }
+    }
+  `
+
+  return <StyledLoad></StyledLoad>
+}

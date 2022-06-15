@@ -7,7 +7,7 @@ import { Button, LinkButton, TextButton } from '../../components/buttons'
 import { ERROR_RED, GREY, LIGHT_GREY, RICH_BLACK, VIVID_CERULEAN, WHITE } from '../../components/colors'
 import { Card, Container, Flexbox, Grid, PaddedContent } from '../../components/containers'
 import { Footer, Navbar } from '../../components/layouts'
-import { InputModal, PromptModal } from '../../components/modals'
+import { InputModal, PromptModal, Snackbar } from '../../components/modals'
 import { createCollection, getAllCollection, removeCollection, updateCollection } from '../../lib/storage'
 import { truncate } from '../../lib/utils/word'
 import defaultImage from '../../public/default.png'
@@ -18,20 +18,20 @@ export const Collection = () => {
   const [collections, setCollections] = useState([]);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
   const [flag, setFlag] = useState(false);
   const [error, setError] = useState(false);
   const [name, setName] = useState('');
 
   useEffect(() => {
     const result = getAllCollection();
-    console.log(result);
     setCollections(result);
   }, [flag]);
 
 
   const addToCollection = (name) => {
     const result = createCollection(name);
-    console.log(result);
     if (!result.error) {
       setFlag(!flag);
       setOpen(false);
@@ -39,6 +39,8 @@ export const Collection = () => {
     }
     else {
       setError(true);
+      setSnackOpen(true);
+      setSnackMessage(result.error);
     }
   }
 
@@ -49,6 +51,10 @@ export const Collection = () => {
       setUpdateOpen(!updateOpen);
       setFlag(!flag);
     }
+    else {
+      setSnackOpen(true);
+      setSnackMessage(result.error);
+    }
   }
 
   const deleteCollection = () => {
@@ -57,8 +63,11 @@ export const Collection = () => {
     if (result.success) {
       setFlag(!flag);
     }
+    else {
+      setSnackOpen(true);
+      setSnackMessage(result.error);
+    }
 
-    console.log(result);
   }
 
   return (
@@ -70,6 +79,7 @@ export const Collection = () => {
       <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} error={error} />
       <InputModal open={updateOpen} setOpen={setUpdateOpen} title={'Update Collection Name'} click={updateCollectionName} error={error} />
       <PromptModal open={deleteOpen} setOpen={setDeleteOpen} title={'Deleting this collection'} description={'Are you sure you want to delete this collection? You cannot revert this action.'} prompt={'Delete'} action={deleteCollection} />
+      <Snackbar setOpen={() => setSnackOpen(false)} open={snackOpen}>{snackMessage}</Snackbar>
       <Navbar />
       <PaddedContent verticalMargin='2rem'>
         <Flexbox
@@ -180,6 +190,7 @@ export const Collection = () => {
 
                             & > *:hover {
                               background-color: ${LIGHT_GREY};
+                              color: white;
                             }
                         `}>
                           <Container>

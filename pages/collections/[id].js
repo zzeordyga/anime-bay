@@ -9,7 +9,7 @@ import { Button, LinkButton } from '../../components/buttons';
 import { ERROR_RED, RICH_BLACK, VIVID_CERULEAN, WHITE } from '../../components/colors';
 import { Card, Container, Flexbox, Grid, PaddedContent } from '../../components/containers';
 import { Breadcrumb, Footer, Navbar } from '../../components/layouts';
-import { InputModal, PromptModal } from '../../components/modals';
+import { InputModal, PromptModal, Snackbar } from '../../components/modals';
 import { getItem, removeCollection, removeItem, updateCollection } from '../../lib/storage';
 import { truncate } from '../../lib/utils/word';
 
@@ -19,6 +19,8 @@ const CollectionDetail = ({ id }) => {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
   const [name, setName] = useState("");
   const [anime, setAnime] = useState({});
   const [collection, setCollection] = useState([]);
@@ -41,21 +43,31 @@ const CollectionDetail = ({ id }) => {
       setUpdateOpen(!updateOpen);
       router.push('/collections/' + newName.replace(' ', '-'));
     }
+    else {
+      setSnackOpen(true);
+      setSnackMessage(result.error);
+    }
   }
 
   const deleteCollection = () => {
     const result = removeCollection(name);
 
     if (result.success) router.push('/collections/');
+    else {
+      setSnackOpen(true);
+      setSnackMessage(result.error);
+    }
   }
 
   const removeAnime = () => {
     const result = removeItem(name, anime);
-    
-    if (result.success)
-    setFlag(!flag);
 
-    console.log(result);
+    if (result.success)
+      setFlag(!flag);
+    else {
+      setSnackOpen(true);
+      setSnackMessage(result.error);
+    }
   }
 
   return (
@@ -67,6 +79,7 @@ const CollectionDetail = ({ id }) => {
       <InputModal open={updateOpen} setOpen={setUpdateOpen} title={'Update Collection Name'} click={updateCollectionName} error={error} />
       <PromptModal open={deleteOpen} setOpen={setDeleteOpen} title={'Deleting this collection'} description={'Are you sure you want to delete this collection? You cannot revert this action.'} prompt={'Delete'} action={deleteCollection} />
       <PromptModal open={removeOpen} setOpen={setRemoveOpen} title={'Removing ' + anime.title} description={'Are you sure you want this anime removed from this collection? You cannot revert this action.'} prompt={'Remove'} action={removeAnime} />
+      <Snackbar setOpen={() => setSnackOpen(false)} open={snackOpen}>{snackMessage}</Snackbar>
       <Navbar />
       <PaddedContent verticalMargin='2rem'>
         <Breadcrumb links={[
@@ -210,9 +223,9 @@ const CollectionDetail = ({ id }) => {
                           padding: 0.75rem 0;
                           cursor: pointer;
                         `} click={() => {
-                          setAnime(anime);
-                          setRemoveOpen(true);
-                        }}>Remove</Button>
+                            setAnime(anime);
+                            setRemoveOpen(true);
+                          }}>Remove</Button>
                       </Flexbox>
                     </Card>
                   ))

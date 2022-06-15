@@ -7,13 +7,13 @@ import { LG, MD, SM, XL } from '../../components/breakpoints';
 import { Button, LinkButton, TextButton } from '../../components/buttons';
 import { BLACK, GREY, RICH_BLACK, VIVID_CERULEAN, WHITE } from '../../components/colors';
 import { Container, Flexbox, PaddedContent } from '../../components/containers';
-import { Breadcrumb, Footer, Navbar } from '../../components/layouts';
+import { Breadcrumb, Footer, Loading, Navbar } from '../../components/layouts';
 import { initializeApollo } from '../../lib/apollo';
 import GET_ANIME_BY_ID from '../../lib/queries/getAnimeById';
 import { truncate } from '../../lib/utils/word';
 import parse from 'html-react-parser'
 import { convertDate } from '../../lib/utils/dateConverter';
-import { CollectionModal, InputModal } from '../../components/modals';
+import { CollectionModal, InputModal, Snackbar } from '../../components/modals';
 import { createCollectionWithItem, getAllCollection, getCollectionsByItem } from '../../lib/storage';
 
 const AnimeDetail = ({ animeId }) => {
@@ -21,6 +21,8 @@ const AnimeDetail = ({ animeId }) => {
     const [less, setLess] = useState(true);
     const [open, setOpen] = useState(false);
     const [collectionOpen, setCollectionOpen] = useState(false);
+    const [snackOpen, setSnackOpen] = useState(false);
+    const [snackMessage, setSnackMessage] = useState('');
     const [collections, setCollections] = useState([]);
     const [flag, setFlag] = useState(false);
 
@@ -38,7 +40,7 @@ const AnimeDetail = ({ animeId }) => {
         }
     });
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <Loading />;
     if (error) return <p>Error...</p>;
 
     const {
@@ -57,11 +59,15 @@ const AnimeDetail = ({ animeId }) => {
     } = animeInfo.Media;
 
     const addToCollection = (name) => {
-        const result = createCollectionWithItem(name, { id, title : titles.userPreferred, coverImage, averageScore, episodes });
-        console.log(result);
-        setFlag(!flag);
-        setOpen(false);
-        setCollectionOpen(true);
+        const result = createCollectionWithItem(name, { id, title: titles.userPreferred, coverImage, averageScore, episodes });
+        if (result.success) {
+            setFlag(!flag);
+            setOpen(false);
+            setCollectionOpen(true);
+        } else {
+            setSnackOpen(true);
+            setSnackMessage(result.error);
+        }
     }
 
     const showLess = () => {
@@ -78,11 +84,12 @@ const AnimeDetail = ({ animeId }) => {
                     ?
                     <>
                         <InputModal open={open} setOpen={setOpen} title={'Create a new Collection'} click={addToCollection} />
-                        <CollectionModal item={{ id, title : titles.userPreferred, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                        <CollectionModal item={{ id, title: titles.userPreferred, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
                     </>
                     :
-                    <CollectionModal item={{ id, title : titles.userPreferred, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
+                    <CollectionModal item={{ id, title: titles.userPreferred, coverImage, averageScore, episodes }} open={collectionOpen} setOpen={setCollectionOpen} action={() => setFlag(flag => !flag)} />
             }
+            <Snackbar setOpen={() => setSnackOpen(false)} open={snackOpen}>{snackMessage}</Snackbar>
             <Navbar />
             <PaddedContent>
                 <Breadcrumb links={[
@@ -203,29 +210,13 @@ const AnimeDetail = ({ animeId }) => {
                                 <p>Average Score</p>
                                 <h4>
                                     <Container css={css`
+                                        font-size: 1.5rem;
                                         font-weight: bolder;
-                                        border: 5px solid ${VIVID_CERULEAN};
-                                        padding: 0.25rem 0.3rem;
-                                        border-radius: 100%;
                                         display: inline;
                                         margin: 0 0.25rem;
-                                    `}>
-                                        {averageScore ? averageScore : '0'}
-                                    </Container>
-                                    <Container css={css`
-                                        display: inline;
-                                        margin: 0 4px;
-                                        font-weight:normal;
-                                    `}>
-                                        from
-                                    </Container>
-                                    {reviews.pageInfo.total}
-                                    <Container css={css`
-                                        display:inline;
-                                        font-weight:normal;
-                                        margin: 0 4px;
-                                    `}>
-                                        user(s)
+                                    `}
+                                    >
+                                        {averageScore ? averageScore : '0'} / 100
                                     </Container>
                                 </h4>
                             </Flexbox>
@@ -238,11 +229,11 @@ const AnimeDetail = ({ animeId }) => {
                                 <h4
                                 >
                                     {
-                                        endDate.year === startDate.year && endDate.month === startDate.month 
-                                        ?
-                                        convertDate(startDate.year, startDate.month, startDate.day)
-                                        :
-                                        convertDate(startDate.year, startDate.month, startDate.day) + ' to ' + convertDate(endDate.year, endDate.month, endDate.day)
+                                        endDate.year === startDate.year && endDate.month === startDate.month
+                                            ?
+                                            convertDate(startDate.year, startDate.month, startDate.day)
+                                            :
+                                            convertDate(startDate.year, startDate.month, startDate.day) + ' to ' + convertDate(endDate.year, endDate.month, endDate.day)
                                     }
                                 </h4>
                             </Flexbox>

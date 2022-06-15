@@ -9,4 +9,5 @@ export const FRENCH_BLUE = '#0075C4';
 export const DODGER_BLUE = '#0093FC';
 export const CELADON_BLUE = '#007EA7';
 export const VIVID_CERULEAN = '#00A8E8';
+export const VIVID_CERULEAN_600 = '#00a6e889';
 export const ERROR_RED = 'rgb(239 68 68)';

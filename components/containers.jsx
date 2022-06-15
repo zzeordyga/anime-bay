@@ -16,6 +16,7 @@ export const PaddedContent = ({
   backgroundColor = WHITE,
   verticalMargin = "0",
   verticalPadding = 0,
+  horizontalPadding="0.5rem",
   maxWidth = "80rem",
   css,
 }) => {
@@ -23,7 +24,7 @@ export const PaddedContent = ({
     max-width: ${maxWidth};
     background-color: ${backgroundColor};
     margin: ${verticalMargin} auto;
-    padding: ${verticalPadding} 0.5rem;
+    padding: ${verticalPadding} ${horizontalPadding};
 
     @media only screen and (min-width: ${SM}) {
       padding: ${verticalPadding} 1.5rem;
@@ -127,12 +128,12 @@ export const Title = ({ children, fontSize = "24px" }) => {
   return <StyledDiv>{children}</StyledDiv>;
 };
 
-export const Container = ({ css, children }) => {
+export const Container = ({ css, children, click=() => {} }) => {
   const StyledContainer = styled.div`
     ${css}
   `;
 
-  return <StyledContainer>{children}</StyledContainer>;
+  return <StyledContainer onClick={click}>{children}</StyledContainer>;
 };
 
 export const ScrollableContainer = ({ children, height = '400px' }) => {
@@ -149,7 +150,7 @@ export const ScrollableContainer = ({ children, height = '400px' }) => {
   return <StyledDiv>{children}</StyledDiv>;
 };
 
-const CheckboxContainer = ({ id, isChecked, changeAction, name }) => {
+const CheckboxContainer = ({ id, isChecked, changeAction, name, disabled=false, param }) => {
   const checkbox = useRef(null);
 
   return (
@@ -170,6 +171,7 @@ const CheckboxContainer = ({ id, isChecked, changeAction, name }) => {
       // }}
       >
       <input
+        disabled={disabled}
         type="checkbox"
         name={id}
         id={id}
@@ -183,7 +185,7 @@ const CheckboxContainer = ({ id, isChecked, changeAction, name }) => {
         `}
         ref={(el) => (checkbox.current = el)}
         onChange={() => {
-          changeAction(!checkbox.current.checked, name);
+          changeAction(!checkbox.current.checked, name, param);
           // checkbox.current.checked = !checkbox.current.checked;
         }}
       />

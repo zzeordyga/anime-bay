@@ -1,7 +1,8 @@
+import { css } from '@emotion/react'
 import Head from 'next/head'
-import { PaddedContent } from '../../components/containers'
-import { Footer, Navbar } from '../../components/layouts'
-import { PromptModal } from '../../components/modals'
+import { Container, PaddedContent } from '../../components/containers'
+import { Footer, Loading, Navbar } from '../../components/layouts'
+import { ContainerModal, PromptModal } from '../../components/modals'
 
 export default function Home() {
 
@@ -12,7 +13,9 @@ export default function Home() {
       </Head>
       {/* <PromptModal title={"Test"} description={"YEAH!"} action={() => { }} /> */}
       <Navbar />
-      <PaddedContent verticalMargin='2rem'>
+      <PaddedContent verticalMargin='2rem' css={css`
+        position: relative;
+      `}>
       </PaddedContent>
       <Footer />
     </div>
