@@ -13,7 +13,6 @@ export default function Collections() {
   const [createOpen, setCreateOpen] = useState(false);
   const [edit, setEdit] = useState<Collection | null>(null);
   const [del, setDel] = useState<Collection | null>(null);
-  const [name, setName] = useState('');
   const [msg, setMsg] = useState('');
 
   const refresh = () => setCollections(getAllCollections());
@@ -29,7 +28,7 @@ export default function Collections() {
         <Container>
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Collections</h1>
-            <Button variant="brand" onClick={() => { setName(''); setCreateOpen(true); }}>+ New</Button>
+            <Button variant="brand" onClick={() => setCreateOpen(true)}>+ New</Button>
           </div>
 
           {collections.length === 0 ? (
@@ -52,7 +51,7 @@ export default function Collections() {
                     <Link href={`/collections/view?name=${encodeURIComponent(c.name)}`} className="line-clamp-1 font-medium hover:text-[color:var(--brand)]">{c.name}</Link>
                     <p className="text-xs text-[color:var(--text-muted)]">{c.array.length} anime</p>
                     <div className="mt-2 flex gap-2 text-xs">
-                      <button className="text-[color:var(--brand)] hover:underline" onClick={() => { setName(c.name); setEdit(c); }}>Rename</button>
+                      <button className="text-[color:var(--brand)] hover:underline" onClick={() => setEdit(c)}>Rename</button>
                       <span className="text-[color:var(--text-muted)]">·</span>
                       <button className="text-[color:var(--danger)] hover:underline" onClick={() => setDel(c)}>Delete</button>
                     </div>

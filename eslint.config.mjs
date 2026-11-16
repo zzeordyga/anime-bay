@@ -1,19 +1,14 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({ baseDirectory: __dirname });
-
-const config = [
-  ...compat.extends('next/core-web-vitals'),
+export default tseslint.config(
+  { ignores: ['node_modules', 'out', '.next'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     rules: {
       '@next/next/no-img-element': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
-];
-
-export default config;
+);

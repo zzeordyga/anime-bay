@@ -24,7 +24,7 @@ export function useCollections(item: CollectionItem | null = null, deps: unknown
 
   useEffect(() => {
     refresh();
-  }, [refresh, ...deps]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [refresh, ...deps]);
 
   const addTo = useCallback(
     (name: string) => {

@@ -173,7 +173,7 @@ export default function Home() {
                   type="checkbox"
                   onChange={(e) => {
                     if (e.target.checked) {
-                      selectedAnimes().forEach((it) => addTo(c.name));
+                      selectedAnimes().forEach(() => addTo(c.name));
                     }
                   }}
                   className="h-4 w-4"
@@ -196,7 +196,7 @@ export default function Home() {
             variant="brand"
             onClick={() => {
               if (!newCollName.trim()) return;
-              selectedAnimes().forEach((it) => createWith(newCollName.trim()));
+              selectedAnimes().forEach(() => createWith(newCollName.trim()));
               setNewCollName('');
               setAssignOpen(false);
               refresh();
