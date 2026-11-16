@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@apollo/client": "^3.13.0",
+    "@apollo/client": "^4.3.8",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@eslint/js": "^9.39.5",
