@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Seo from '@/components/Seo';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Navbar, { Footer } from '@/components/Navbar';
@@ -22,7 +22,7 @@ export default function Collections() {
 
   return (
     <>
-      <Head><title>Collections — anime-bay</title></Head>
+      <Seo title="Collections" path="/collections" description="Your personal anime collections, stored locally in your browser." />
       <Navbar />
       <main className="py-8">
         <Container>

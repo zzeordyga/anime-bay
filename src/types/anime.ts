@@ -21,7 +21,7 @@ export interface AnimeListItem {
   coverImage: { large: string; medium: string };
   title: { romaji: string | null };
   genres?: string[];
-  seasonYear?: number;
+  seasonYear?: number | null;
   bannerImage?: string | null;
 }
 

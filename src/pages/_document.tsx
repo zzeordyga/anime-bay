@@ -4,7 +4,8 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <meta name="description" content="anime-bay — browse AniList anime and curate collections." />
+        <meta name="theme-color" content="#34c796" />
+        <link rel="manifest" href="/anime-bay/manifest.webmanifest" />
         <link rel="icon" href="/anime-bay/favicon.svg" />
         <link rel="preconnect" href="https://fonts.bunny.net" />
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />

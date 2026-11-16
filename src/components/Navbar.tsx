@@ -7,7 +7,10 @@ import { Container } from './primitives';
 
 const Links = [
   { href: '/', label: 'Browse' },
+  { href: '/seasonal', label: 'Seasonal' },
+  { href: '/genres', label: 'Genres' },
   { href: '/collections', label: 'Collections' },
+  { href: '/about', label: 'About' },
 ];
 
 export default function Navbar() {
@@ -34,9 +37,9 @@ export default function Navbar() {
             <span>anime-bay</span>
           </Link>
 
-          <nav className="ml-auto hidden items-center gap-1 text-sm sm:flex">
+          <nav className="ml-auto flex items-center gap-0.5 overflow-x-auto text-sm">
             {Links.map((l) => (
-              <Link key={l.href} href={l.href} className="rounded-lg px-3 py-2 text-[color:var(--text-muted)] transition hover:text-[color:var(--text)] hover:bg-[color:var(--surface)]">
+              <Link key={l.href} href={l.href} className="whitespace-nowrap rounded-lg px-2.5 py-2 text-[color:var(--text-muted)] transition hover:text-[color:var(--text)] hover:bg-[color:var(--surface)]">
                 {l.label}
               </Link>
             ))}
@@ -81,7 +84,14 @@ export function Footer() {
   return (
     <FooterWrap>
       <Container>
-        <p>© {new Date().getFullYear()} anime-bay · AniList browser</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p>© {new Date().getFullYear()} anime-bay · data from AniList</p>
+          <nav className="flex gap-4" aria-label="Footer">
+            {Links.map((l) => (
+              <Link key={l.href} href={l.href} className="hover:text-[color:var(--text)]">{l.label}</Link>
+            ))}
+          </nav>
+        </div>
       </Container>
     </FooterWrap>
   );

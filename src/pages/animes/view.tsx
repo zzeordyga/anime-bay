@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
-import Head from 'next/head';
+import Seo from '@/components/Seo';
+import Chip from '@/components/Chip';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -74,9 +75,13 @@ export default function AnimeDetail() {
 
   return (
     <>
-      <Head>
-        <title>{anime.title.userPreferred ?? anime.title.romaji} — anime-bay</title>
-      </Head>
+      <Seo
+        title={anime.title.userPreferred ?? anime.title.romaji ?? 'Anime'}
+        path="/animes/view"
+        image={anime.coverImage.extraLarge}
+        description={(anime.description ?? '').replace(/<[^>]+>/g, '').slice(0, 160) || undefined}
+        noindex
+      />
       <Navbar />
       <main>
         {anime.bannerImage && (
@@ -101,7 +106,7 @@ export default function AnimeDetail() {
               <img
                 src={anime.coverImage.extraLarge || anime.coverImage.large}
                 alt={anime.title.userPreferred ?? ''}
-                className="w-full rounded-[var(--radius-lg)] border object-cover"
+                className="mx-auto w-48 rounded-[var(--radius-lg)] border object-cover shadow-lg sm:w-56 lg:w-full"
                 style={{ borderColor: 'var(--border)' }}
                 loading="lazy"
                 decoding="async"
@@ -122,19 +127,13 @@ export default function AnimeDetail() {
             </aside>
 
             <section>
-              <h1 className="text-3xl font-bold sm:text-4xl">{anime.title.userPreferred ?? anime.title.romaji}</h1>
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{anime.title.userPreferred ?? anime.title.romaji}</h1>
               {anime.title.native && anime.title.native !== anime.title.userPreferred && (
                 <p className="mt-1 text-[color:var(--text-muted)]">{anime.title.native}</p>
               )}
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {anime.genres.map((g) => (
-                  <span
-                    key={g}
-                    className="rounded-full px-3 py-1 text-xs font-medium"
-                    style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text)' }}
-                  >
-                    {g}
-                  </span>
+                  <Chip key={g} size="sm" href={`/genres?g=${encodeURIComponent(g)}`}>{g}</Chip>
                 ))}
               </div>
 
@@ -153,14 +152,7 @@ export default function AnimeDetail() {
                   <h2 className="text-lg font-bold">In your collections</h2>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {containing.map((c) => (
-                      <Link
-                        key={c}
-                        href={`/collections/view?name=${encodeURIComponent(c)}`}
-                        className="rounded-full px-3 py-1 text-sm hover:text-[color:var(--brand)]"
-                        style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}
-                      >
-                        {c}
-                      </Link>
+                      <Chip key={c} size="sm" href={`/collections/view?name=${encodeURIComponent(c)}`}>{c}</Chip>
                     ))}
                   </div>
                 </div>

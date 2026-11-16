@@ -1,5 +1,5 @@
-import { gql, useQuery } from '@apollo/client';
-import Head from 'next/head';
+import { useQuery } from '@apollo/client';
+import Link from 'next/link';
 import { useState } from 'react';
 import Navbar, { Footer } from '@/components/Navbar';
 import { Container } from '@/components/primitives';
@@ -10,33 +10,10 @@ import { Modal } from '@/components/Modal';
 import { Button } from '@/components/buttons';
 import { useCollections } from '@/lib/useCollections';
 import { useDebouncedValue } from '@/lib/useDebounce';
+import Seo from '@/components/Seo';
+import Chip from '@/components/Chip';
+import { BROWSE, GENRES, SORTS } from '@/lib/queries/browse';
 import type { AnimeListResponse, CollectionItem } from '@/types/anime';
-
-const GET_ANIME = gql`
-  query GetAnime($page: Int, $perPage: Int) {
-    Page(page: $page, perPage: $perPage) {
-      pageInfo { total currentPage lastPage hasNextPage perPage }
-      media(type: ANIME, sort: POPULARITY_DESC) {
-        id episodes averageScore
-        coverImage { large medium }
-        title { romaji }
-      }
-    }
-  }
-`;
-
-const SEARCH = gql`
-  query SearchAnime($page: Int, $perPage: Int, $search: String) {
-    Page(page: $page, perPage: $perPage) {
-      pageInfo { total currentPage lastPage hasNextPage perPage }
-      media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
-        id episodes averageScore
-        coverImage { large medium }
-        title { romaji }
-      }
-    }
-  }
-`;
 
 const PER_PAGE = 12;
 
@@ -44,6 +21,8 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const debounced = useDebouncedValue(query);
+  const [sort, setSort] = useState<string>(SORTS[0].value);
+  const [genre, setGenre] = useState<string | null>(null);
   const [bulk, setBulk] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
   const [assignOpen, setAssignOpen] = useState(false);
@@ -53,9 +32,14 @@ export default function Home() {
   const { collections, refresh, addTo, createWith } = useCollections(emptyItem, []);
   const items = collections;
 
-  const active = debounced.trim() ? SEARCH : GET_ANIME;
-  const { data, loading, error } = useQuery<AnimeListResponse>(active, {
-    variables: { page, perPage: PER_PAGE, search: debounced || undefined },
+  const { data, loading, error } = useQuery<AnimeListResponse>(BROWSE, {
+    variables: {
+      page,
+      perPage: PER_PAGE,
+      search: debounced.trim() || undefined,
+      genre: genre ?? undefined,
+      sort: debounced.trim() ? ['SEARCH_MATCH'] : [sort],
+    },
     fetchPolicy: 'cache-and-network',
   });
 
@@ -78,28 +62,59 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>anime-bay — browse</title>
-      </Head>
+      <Seo
+        path="/"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'anime-bay',
+          url: 'https://zzeordyga.github.io/anime-bay/',
+          description: 'Browse AniList anime and curate your own collections.',
+        }}
+      />
       <Navbar />
+      <section
+        className="border-b py-10 sm:py-14"
+        style={{
+          borderColor: 'var(--border)',
+          background: 'radial-gradient(60rem 24rem at 10% -10%, color-mix(in srgb, var(--brand) 22%, transparent), transparent), radial-gradient(40rem 20rem at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent)',
+        }}
+      >
+        <Container>
+          <p className="eyebrow">AniList · free · no account needed</p>
+          <h1 className="mt-3 max-w-2xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl">
+            Find your next anime, build your own shelves.
+          </h1>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-[color:var(--text-muted)] sm:text-lg">
+            Search thousands of titles, explore by <Link className="text-[color:var(--brand)] hover:underline" href="/seasonal">season</Link> or{' '}
+            <Link className="text-[color:var(--brand)] hover:underline" href="/genres">genre</Link>, and save favourites to collections.
+          </p>
+        </Container>
+      </section>
       <main className="py-8">
         <Container>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Browse anime</h1>
-              <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>
-                Discover series from the AniList catalogue.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <h2 className="text-2xl font-bold tracking-tight">{debounced.trim() ? `Results for “${debounced.trim()}”` : 'Browse anime'}</h2>
+            <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto">
+              <select
+                aria-label="Sort by"
+                value={sort}
+                onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                disabled={!!debounced.trim()}
+                className="rounded-[var(--radius)] border px-3 py-2 text-sm disabled:opacity-50"
+                style={{ borderColor: 'var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+              >
+                {SORTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
               <input
+                aria-label="Search anime"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
                   setPage(1);
                 }}
                 placeholder="Search by title…"
-                className="w-full rounded-[var(--radius)] border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                className="min-w-0 flex-1 rounded-[var(--radius)] border px-3 py-2 text-sm focus:outline-none focus:ring-2 lg:w-64 lg:flex-none"
                 style={{
                   borderColor: 'var(--border)',
                   background: 'var(--surface)',
@@ -119,6 +134,12 @@ export default function Home() {
                 </Button>
               )}
             </div>
+          </div>
+
+          <div className="mt-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]" aria-label="Filter by genre">
+            {[null, ...GENRES].map((g) => (
+              <Chip key={g ?? 'all'} active={genre === g} onClick={() => { setGenre(g); setPage(1); }}>{g ?? 'All'}</Chip>
+            ))}
           </div>
 
           {error && (

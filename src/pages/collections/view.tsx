@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Seo from '@/components/Seo';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -25,7 +25,7 @@ export default function CollectionView() {
 
   return (
     <>
-      <Head><title>{name || 'Collection'} — anime-bay</title></Head>
+      <Seo title={name || 'Collection'} path="/collections/view" noindex />
       <Navbar />
       <main className="py-8">
         <Container>
