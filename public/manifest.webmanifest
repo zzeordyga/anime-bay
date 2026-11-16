@@ -1,0 +1,11 @@
+{
+  "name": "anime-bay",
+  "short_name": "anime-bay",
+  "description": "Browse AniList anime and curate your own collections.",
+  "start_url": "/anime-bay/",
+  "scope": "/anime-bay/",
+  "display": "standalone",
+  "background_color": "#0f1420",
+  "theme_color": "#34c796",
+  "icons": [{ "src": "/anime-bay/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
