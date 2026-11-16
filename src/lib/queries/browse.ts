@@ -21,9 +21,10 @@ export const BROWSE = gql`
         sort: $sort
         isAdult: false
       ) {
-        id episodes averageScore genres seasonYear
+        id episodes averageScore genres seasonYear status format description(asHtml: false)
+        tags { name rank isMediaSpoiler }
         coverImage { large medium }
-        title { romaji }
+        title { romaji native english }
       }
     }
   }

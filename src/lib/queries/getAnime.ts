@@ -48,6 +48,8 @@ export const GET_ANIME_BY_ID = gql`
       episodes
       duration
       genres
+      format
+      tags { name rank isMediaSpoiler }
       averageScore
       season
       seasonYear

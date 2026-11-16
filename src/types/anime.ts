@@ -19,8 +19,12 @@ export interface AnimeListItem {
   episodes: number | null;
   averageScore: number | null;
   coverImage: { large: string; medium: string };
-  title: { romaji: string | null };
+  title: { romaji: string | null; native?: string | null; english?: string | null };
   genres?: string[];
+  status?: string | null;
+  format?: string | null;
+  description?: string | null;
+  tags?: { name: string; rank: number; isMediaSpoiler: boolean }[];
   seasonYear?: number | null;
   bannerImage?: string | null;
 }
@@ -34,6 +38,8 @@ export interface AnimeDetail {
   episodes: number | null;
   duration: number | null;
   genres: string[];
+  format?: string | null;
+  tags?: { name: string; rank: number; isMediaSpoiler: boolean }[];
   averageScore: number | null;
   studios: { nodes: { name: string }[] };
   status: string | null;

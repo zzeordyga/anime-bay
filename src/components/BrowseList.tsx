@@ -40,7 +40,7 @@ export default function BrowseList({ variables, perPage = 15, emptyText = 'Nothi
 
   return (
     <>
-      <div className="mt-8 grid gap-5 grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] lg:grid-cols-5">
+      <div className="mt-8 grid gap-5 grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:grid-cols-4">
         {loading && media.length === 0
           ? Array.from({ length: perPage }).map((_, i) => <SkeletonCard key={i} />)
           : media.map((a) => <AnimeCard key={a.id} anime={a} />)}

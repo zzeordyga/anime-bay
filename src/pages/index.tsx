@@ -158,7 +158,7 @@ export default function Home() {
           ) : media.length === 0 ? (
             <p className="mt-12 text-center text-[color:var(--text-muted)]">No results for “{debounced}”.</p>
           ) : (
-            <div className="mt-8 grid gap-5 grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] lg:grid-cols-5">
+            <div className="mt-8 grid gap-5 grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:grid-cols-4">
               {media.map((a) => (
                 <AnimeCard
                   key={a.id}

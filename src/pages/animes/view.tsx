@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import Seo from '@/components/Seo';
 import Chip from '@/components/Chip';
+import { STATUS, formatScore, scoreColor } from '@/lib/status';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -113,8 +114,9 @@ export default function AnimeDetail() {
               />
               <div className="mt-4 space-y-3 rounded-[var(--radius-lg)] border p-4" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
                 <Stat label="Episodes" value={anime.episodes ? `${anime.episodes}` : '—'} />
-                <Stat label="Average" value={`${anime.averageScore ?? '—'} / 100`} />
-                <Stat label="Status" value={anime.status ?? '—'} />
+                <Stat label="Score" value={anime.averageScore ? `${formatScore(anime.averageScore)} / 10` : '—'} />
+                <Stat label="Status" value={STATUS[anime.status ?? '']?.label ?? anime.status ?? '—'} />
+                {anime.format && <Stat label="Format" value={anime.format.replace(/_/g, ' ')} />}
                 <Stat label="Aired" value={aired} />
                 <Stat
                   label="Studios"
@@ -131,11 +133,27 @@ export default function AnimeDetail() {
               {anime.title.native && anime.title.native !== anime.title.userPreferred && (
                 <p className="mt-1 text-[color:var(--text-muted)]">{anime.title.native}</p>
               )}
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {anime.status && STATUS[anime.status] && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold" style={{ borderColor: STATUS[anime.status].color, color: STATUS[anime.status].color }}>
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: STATUS[anime.status].color }} />
+                    {STATUS[anime.status].label}
+                  </span>
+                )}
+                {anime.averageScore ? (
+                  <span className="rounded-full px-3 py-1 text-xs font-bold text-white" style={{ background: scoreColor(anime.averageScore) }}>★ {formatScore(anime.averageScore)}<span className="font-medium opacity-80"> / 10</span></span>
+                ) : null}
                 {anime.genres.map((g) => (
-                  <Chip key={g} size="sm" href={`/genres?g=${encodeURIComponent(g)}`}>{g}</Chip>
+                  <Chip key={g} size="sm" active href={`/genres?g=${encodeURIComponent(g)}`}>{g}</Chip>
                 ))}
               </div>
+              {anime.tags && anime.tags.filter((t) => !t.isMediaSpoiler).length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {anime.tags.filter((t) => !t.isMediaSpoiler).slice(0, 8).map((t) => (
+                    <Chip key={t.name} size="xs">{t.name}</Chip>
+                  ))}
+                </div>
+              )}
 
               <h2 className="mt-6 text-lg font-bold">Description</h2>
               <div className="mt-2 [&_br]:block [&_a]:text-[color:var(--brand)] [&_b]:font-semibold" style={{ color: 'var(--text)' }}>
@@ -167,7 +185,7 @@ export default function AnimeDetail() {
                         <div className="flex items-center gap-2 text-sm">
                           <span className="font-medium">{r.user.name}</span>
                           <span className="text-[color:var(--text-muted)]">·</span>
-                          <span className="text-[color:var(--accent)]">{r.score}/100</span>
+                          <span className="text-[color:var(--accent)]">{formatScore(r.score)}/10</span>
                         </div>
                         {r.summary && <p className="mt-1 text-sm text-[color:var(--text-muted)] line-clamp-3">{r.summary}</p>}
                       </article>
