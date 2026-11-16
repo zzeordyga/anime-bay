@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Navbar, { Footer } from '@/components/Navbar';
 import { Container } from '@/components/primitives';
 import BrowseList from '@/components/BrowseList';
@@ -7,11 +7,11 @@ import Chip from '@/components/Chip';
 import { GENRES } from '@/lib/queries/browse';
 
 export default function Genres() {
-  const [genre, setGenre] = useState<string>(GENRES[0]);
-  useEffect(() => {
-    const g = new URLSearchParams(location.search).get('g');
-    if (g && GENRES.includes(g)) setGenre(g);
-  }, []);
+  const router = useRouter();
+  const q = router.query.g;
+  const requested = Array.isArray(q) ? q[0] : q;
+  const genre = requested && GENRES.includes(requested) ? requested : GENRES[0];
+  const setGenre = (g: string) => router.replace({ pathname: '/genres', query: { g } }, undefined, { shallow: true });
 
   return (
     <>
