@@ -15,7 +15,7 @@
     "@apollo/client": "^3.13.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "graphql": "^16.11.0",
     "html-react-parser": "^6.1.9",
     "next": "^16.0.0",
