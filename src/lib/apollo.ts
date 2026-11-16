@@ -10,7 +10,13 @@ export function getClient(): ApolloClient<unknown> {
   const client = new ApolloClient({
     ssrMode: typeof window === 'undefined',
     link: httpLink,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        // Different queries select different title fields; merge instead of replacing.
+        MediaTitle: { merge: true },
+        MediaCoverImage: { merge: true },
+      },
+    }),
   });
 
   if (typeof window !== 'undefined') apolloClient = client;
