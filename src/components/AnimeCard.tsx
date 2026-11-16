@@ -12,6 +12,9 @@ interface Props {
   onToggleSelect?: (id: number) => void;
 }
 
+const formatLabel = (f?: string | null) =>
+  !f ? null : f.length <= 3 ? f : f.replace(/_/g, ' ').toLowerCase().replace(/(^|\s)\w/g, (c) => c.toUpperCase());
+
 function ScoreRing({ score }: { score: number }) {
   const c = 2 * Math.PI * 16;
   return (
@@ -34,7 +37,7 @@ export default function AnimeCard({ anime, selected, bulk, onToggleSelect }: Pro
   const status = anime.status ? STATUS[anime.status] : null;
   const desc = stripHtml(anime.description);
   const tags = (anime.tags ?? []).filter((t) => !t.isMediaSpoiler).slice(0, 3);
-  const meta = [anime.format?.replace(/_/g, ' '), anime.episodes ? `${anime.episodes} ep` : null, anime.seasonYear]
+  const meta = [formatLabel(anime.format), anime.episodes ? `${anime.episodes} eps` : null, anime.seasonYear]
     .filter(Boolean)
     .join(' · ');
 
@@ -75,7 +78,7 @@ export default function AnimeCard({ anime, selected, bulk, onToggleSelect }: Pro
           <ScoreRing score={score} />
         </div>
 
-        {meta && <p className="text-xs font-medium capitalize text-[color:var(--text-muted)]">{meta.toLowerCase().replace(/\btv\b/, 'TV').replace(/\bova\b|\bona\b/g, (m) => m.toUpperCase())}</p>}
+        {meta && <p className="text-xs font-medium text-[color:var(--text-muted)]">{meta}</p>}
 
         {anime.genres && anime.genres.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
